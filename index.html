@@ -111,18 +111,22 @@
 
         /* --- Notes (1–7) --- */
         .note-buttons {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);  /* 7 equal-width columns */
+            gap: 4px;                               /* small spacing between them */
             margin: 10px auto;
             width: 100%;
-        }
+            box-sizing: border-box;
+            }
 
-        .note-buttons input {
-            flex: 1;
-            margin: 2px;
-            font-size: 18px;
-            padding: 2px 0;
-            min-width: 0; /* prevent overflow */
+            .note-buttons input {
+            width: 100%;
+            padding: 10px 0;
+            font-size: 17px;
+            text-align: center;
+            border-radius: 8px;
+            box-sizing: border-box;
+            min-width: 0;
         }
 
         /* --- Instrument + Tempo compact alignment --- */
