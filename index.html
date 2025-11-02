@@ -128,151 +128,216 @@
     </div>
     <footer>© 2025 Alankar Maker</footer>
 
-    <script>
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      let ac = new AudioContext();
-      let currentInstrumentPlayer = null;
-      let currentPlaybackAbort = null;
-      const NOTE_MAP = {'1':'C4','2':'D4','3':'E4','4':'F4','5':'G4','6':'A4','7':'B4',
-                        '8':'C5','9':'D5','10':'E5','11':'F5','12':'G5','13':'A5','14':'B5'};
-
-      async function loadInstrument(){
-        const instName = document.getElementById('instrument').value;
-        currentInstrumentPlayer = await Soundfont.instrument(ac, instName);
-      }
-
-      function append_note(v){ document.getElementById('seq').value += v.trim(); }
-
-      function clear_sequence(){
-        if(currentPlaybackAbort){ currentPlaybackAbort.abort(); currentPlaybackAbort=null; }
-        document.querySelectorAll('.lib-card.playing').forEach(el=>el.classList.remove('playing'));
-        try { if(ac && ac.state==="running") ac.suspend(); } catch(e){}
-        document.getElementById('seq').value="";
-      }
-
-      function parseSequence(raw){
-        const clean = raw.replace(/[^1-7_""]/g,'');
-        document.getElementById('seq').value = clean;
-        const chars = clean.split('');
-        const parsed=[];
-        for(let i=0;i<chars.length;i++){
-          const ch=chars[i];
-          if(ch==='"'){ if(parsed.length>0) parsed[parsed.length-1].mult+=1; }
-          else{ parsed.push({note:ch,mult:1}); }
+    <script type="module">
+        // ---------------- Firebase Imports ----------------
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+        import {
+          getFirestore, collection, addDoc, getDocs, updateDoc, doc,
+          increment, onSnapshot, query, orderBy
+        } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+      
+        // ---------------- Firebase Config ----------------
+        const firebaseConfig = {
+          apiKey: "AIzaSyDoCtGjssZ41qMthQrihOPD_wYJrdVXfr0",
+          authDomain: "alankar-maker.firebaseapp.com",
+          projectId: "alankar-maker",
+          storageBucket: "alankar-maker.firebasestorage.app",
+          messagingSenderId: "565148625631",
+          appId: "1:565148625631:web:4d819f8190f9d5fb49d76a",
+          measurementId: "G-P3GTJ27L88"
+        };
+      
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+      
+        // ---------------- SoundFont Setup ----------------
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const ac = new AudioContext();
+        let currentInstrumentPlayer = null;
+        let currentPlaybackAbort = null;
+        let warmedUp = false;
+      
+        const NOTE_MAP = {
+          '1': 'C4', '2': 'D4', '3': 'E4', '4': 'F4', '5': 'G4', '6': 'A4', '7': 'B4',
+          '8': 'C5', '9': 'D5', '10': 'E5', '11': 'F5', '12': 'G5', '13': 'A5', '14': 'B5'
+        };
+      
+        // ---------------- Functions ----------------
+        async function loadInstrument() {
+          let instName = document.getElementById('instrument').value;
+          if (instName === "piano") instName = "acoustic_grand_piano";
+          else if (instName === "organ") instName = "drawbar_organ";
+          else if (instName === "guitar") instName = "acoustic_guitar_nylon";
+          currentInstrumentPlayer = await Soundfont.instrument(ac, instName);
         }
-        return parsed;
-      }
-
-      function computeStepMs(){
-        const t=parseInt(document.getElementById('tempo').value,10);
-        const mapped=t+4;
-        return Math.max(80,560-(mapped*48));
-      }
-
-      async function play_sequence(){
-        if(!currentInstrumentPlayer) await loadInstrument();
-        if(currentPlaybackAbort) currentPlaybackAbort.abort();
-        const controller=new AbortController();
-        currentPlaybackAbort=controller;
-        await ac.resume();
-
-        let raw=document.getElementById('seq').value.trim();
-        if(!raw) return alert("Enter a sequence first!");
-        const base=parseSequence(raw);
-        const expanded=[];
-        for(let i=0;i<4;i++) base.forEach(p=>expanded.push({note:(p.note==='_'?'_':String(Number(p.note)+i)),mult:p.mult}));
-
-        const sleep=ms=>new Promise(r=>{const id=setTimeout(r,ms);controller.signal.addEventListener('abort',()=>clearTimeout(id),{once:true});});
-
-        for(let i=0;i<expanded.length;i++){
-          if(controller.signal.aborted) return;
-          const stepMs=computeStepMs();
-          const {note,mult}=expanded[i];
-          if(note==='_'){ await sleep(stepMs*mult); continue; }
-          const midi=NOTE_MAP[note];
-          if(!midi){ await sleep(stepMs*mult); continue; }
-          const durSec=(stepMs*mult)/1000*0.9;
-          currentInstrumentPlayer.play(midi,ac.currentTime,{duration:durSec});
-          await sleep(stepMs*mult);
+      
+        function append_note(v) {
+          document.getElementById('seq').value += v.trim();
         }
-        currentPlaybackAbort=null;
-      }
-
-      async function saveAlankar(){
-        const seq=document.getElementById('seq').value.trim();
-        if(!seq) return alert("Enter a sequence first!");
-        const instrument=document.getElementById('instrument').value;
-        const tempo=parseInt(document.getElementById('tempo').value,10);
-        const timestamp=Date.now();
-        const snapshot=await getDocs(collection(db,"alankars"));
-        const exists=snapshot.docs.some(d=>d.data().sequence===seq);
-        if(exists) return alert("Already exists!");
-        await addDoc(collection(db,"alankars"),{name:seq,sequence:seq,instrument,tempo,votes:0,time:timestamp});
-        alert("Saved to shared library!");
-      }
-
-      function renderLibrary(){
-        const div=document.getElementById('library-list');
-        div.innerHTML="<p>Loading...</p>";
-        const q=query(collection(db,"alankars"),orderBy("votes","desc"),orderBy("time","desc"));
-        onSnapshot(q,snapshot=>{
-          if(snapshot.empty){ div.innerHTML="<p>No Alankars yet.</p>"; return; }
-          div.innerHTML=snapshot.docs.map(d=>{
-            const a=d.data();
-            return `<div id="lib-item-${d.id}" class="lib-card">
-              <b>${a.name}</b> (${a.instrument}, tempo ${a.tempo}) — ❤️ ${a.votes}<br>
-              <button onclick="playFromFirestore('${d.id}')">▶ Play</button>
-              <button onclick="voteFirestore('${d.id}')">👍 Vote</button>
-            </div>`;
-          }).join('');
+      
+        function clear_sequence() {
+          if (currentPlaybackAbort) currentPlaybackAbort.abort();
+          document.getElementById('seq').value = "";
+        }
+      
+        document.getElementById('seq').addEventListener('input', e => {
+          e.target.value = e.target.value.replace(/ /g, '_');
         });
-      }
-
-      async function voteFirestore(id){
-        const ref=doc(db,"alankars",id);
-        await updateDoc(ref,{votes:increment(1)});
-      }
-
-      async function playFromFirestore(id){
-        const docRef=doc(db,"alankars",id);
-        const snapshot=await getDocs(collection(db,"alankars"));
-        const item=snapshot.docs.find(d=>d.id===id)?.data();
-        if(!item) return;
-        document.getElementById('instrument').value=item.instrument;
-        document.getElementById('tempo').value=item.tempo;
-        document.getElementById('tempoDisplay').innerText=item.tempo;
-        document.getElementById('seq').value=item.sequence;
-        await loadInstrument();
-        const card=document.querySelector(`#lib-item-${id}`);
-        document.querySelectorAll('.lib-card').forEach(el=>el.classList.remove('playing'));
-        card.classList.add('playing');
-        await play_sequence();
-        card.classList.remove('playing');
-      }
-
-      function openTab(tab){
-        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-        document.querySelector(`[onclick="openTab('${tab}')"]`).classList.add('active');
-        document.getElementById(tab).classList.add('active');
-        if(tab==='library') renderLibrary();
-      }
-
-      // Pre-warm audio context
-      async function warmUpAudio(){
-        if(window.warmedUp) return; window.warmedUp=true;
-        try{
+      
+        function parseSequence(raw) {
+          const chars = raw.split('');
+          const parsed = [];
+          for (let i = 0; i < chars.length; i++) {
+            const ch = chars[i];
+            if (ch === '"') {
+              if (parsed.length > 0) parsed[parsed.length - 1].mult += 1;
+            } else {
+              parsed.push({ note: ch, mult: 1 });
+            }
+          }
+          return parsed;
+        }
+      
+        function computeStepMs() {
+          const t = parseInt(document.getElementById('tempo').value, 10);
+          const mapped = t + 4;
+          return Math.max(80, 560 - (mapped * 48));
+        }
+      
+        async function play_sequence() {
+          if (!currentInstrumentPlayer) await loadInstrument();
+          if (currentPlaybackAbort) currentPlaybackAbort.abort();
+          const controller = new AbortController();
+          currentPlaybackAbort = controller;
           await ac.resume();
-          if(!currentInstrumentPlayer) await loadInstrument();
-          currentInstrumentPlayer.play("C4",ac.currentTime,{gain:0.0001,duration:0.05});
-          console.log("🎵 Audio pre-warmed");
-        }catch(e){console.warn("Autoplay blocked, will warm on click.");}
-      }
-      window.addEventListener("load",warmUpAudio);
-      window.addEventListener("click",warmUpAudio,{once:true});
-      window.addEventListener("touchstart",warmUpAudio,{once:true});
-
-      window.onload=()=>{loadInstrument(); renderLibrary();};
+      
+          let raw = document.getElementById('seq').value.trim();
+          raw = raw.replace(/[^1-7_""]/g, '');
+          document.getElementById('seq').value = raw;
+          if (!raw) return alert("Enter a valid sequence with 1–7, _ or \"");
+      
+          const base = parseSequence(raw);
+          const expanded = [];
+          for (let i = 0; i < 5; i++) {
+            base.forEach(p => expanded.push({
+              note: (p.note === '_' ? '_' : String(Number(p.note) + i)),
+              mult: p.mult
+            }));
+          }
+      
+          const sleep = ms => new Promise(r => {
+            const id = setTimeout(r, ms);
+            controller.signal.addEventListener('abort', () => clearTimeout(id), { once: true });
+          });
+      
+          for (let i = 0; i < expanded.length; i++) {
+            if (controller.signal.aborted) return;
+      
+            const stepMs = computeStepMs();
+            const { note, mult } = expanded[i];
+      
+            if (note === '_') {
+              await sleep(stepMs * mult);
+              continue;
+            }
+      
+            const midi = NOTE_MAP[note];
+            if (!midi) { await sleep(stepMs * mult); continue; }
+      
+            const durSec = (stepMs * mult) / 1000 * 0.9;
+            currentInstrumentPlayer.play(midi, ac.currentTime, { duration: durSec });
+            await sleep(stepMs * mult);
+          }
+      
+          currentPlaybackAbort = null;
+        }
+      
+        async function saveAlankar() {
+          const seq = document.getElementById('seq').value.trim();
+          if (!seq) return alert("Enter a sequence first!");
+          const instrument = document.getElementById('instrument').value;
+          const tempo = parseInt(document.getElementById('tempo').value, 10);
+          const timestamp = Date.now();
+      
+          const snapshot = await getDocs(collection(db, "alankars"));
+          const exists = snapshot.docs.some(d => d.data().sequence === seq);
+          if (exists) return alert("Already in library!");
+      
+          await addDoc(collection(db, "alankars"), { name: seq, sequence: seq, instrument, tempo, votes: 0, time: timestamp });
+          alert("Saved to Shared Library!");
+        }
+      
+        function renderLibrary() {
+          const div = document.getElementById('library-list');
+          div.innerHTML = "<p>Loading...</p>";
+      
+          const q = query(collection(db, "alankars"), orderBy("votes", "desc"), orderBy("time", "desc"));
+          onSnapshot(q, snapshot => {
+            if (snapshot.empty) {
+              div.innerHTML = "<p>No Alankars yet. Be the first to add one!</p>";
+              return;
+            }
+      
+            div.innerHTML = snapshot.docs.map((docSnap) => {
+              const a = docSnap.data();
+              return `
+                <div id="lib-item-${docSnap.id}" class="lib-card">
+                  <b>${a.name}</b> (${a.instrument}, tempo ${a.tempo}) — ❤️ ${a.votes}<br>
+                  <button onclick="playFromFirestore('${docSnap.id}')">▶ Play</button>
+                  <button onclick="voteFirestore('${docSnap.id}')">👍 Vote</button>
+                </div>
+              `;
+            }).join("");
+          });
+        }
+      
+        async function playFromFirestore(id) {
+          const snapshot = await getDocs(collection(db, "alankars"));
+          const item = snapshot.docs.find(d => d.id === id)?.data();
+          if (!item) return;
+      
+          document.getElementById('instrument').value = item.instrument;
+          document.getElementById('tempo').value = item.tempo;
+          document.getElementById('tempoDisplay').innerText = item.tempo;
+          document.getElementById('seq').value = item.sequence;
+      
+          await loadInstrument();
+          await play_sequence();
+        }
+      
+        async function voteFirestore(id) {
+          const docRef = doc(db, "alankars", id);
+          await updateDoc(docRef, { votes: increment(1) });
+        }
+      
+        function openTab(tabName) {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add('active');
+          document.getElementById(tabName).classList.add('active');
+          if (tabName === 'library') renderLibrary();
+        }
+      
+        // ---------------- Warmup ----------------
+        function warmUpAudio() {
+          if (warmedUp) return;
+          warmedUp = true;
+          ac.resume().then(async () => {
+            if (!currentInstrumentPlayer) await loadInstrument();
+            try {
+              currentInstrumentPlayer.play("C4", ac.currentTime, { gain: 0.0001, duration: 0.05 });
+            } catch (e) { console.warn("Warm-up skipped:", e); }
+          });
+        }
+        window.addEventListener("load", warmUpAudio);
+        window.addEventListener("click", warmUpAudio, { once: true });
+        window.addEventListener("touchstart", warmUpAudio, { once: true });
+      
+        window.onload = () => {
+          loadInstrument();
+          renderLibrary();
+        };
     </script>
+      
   </body>
 </html>
