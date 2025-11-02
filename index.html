@@ -64,54 +64,110 @@
         transition:all 0.3s ease;
       }
       /* -------- Responsive adjustments -------- */
-      @media (max-width: 768px) {
+      /* --- Improved Mobile Layout (with aligned tabs and musical flow) --- */
+        @media (max-width: 768px) {
         body {
             font-size: 16px;
             background-size: cover;
         }
+
         .container {
-            width: 90%;
-            padding: 20px;
+            width: 95%;
+            padding: 20px 15px;
             margin: 20px auto;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
-        h2 {
-            font-size: 22px;
-        }
+
+        /* --- Tabs remain side by side --- */
         .tabs {
-            flex-direction: column;
-            align-items: center;
+            display: flex;
+            justify-content: space-evenly;
+            margin-bottom: 20px;
         }
         .tab {
-            width: 100%;
-            border-left: 4px solid transparent;
-            border-bottom: none;
-            font-size: 18px;
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            font-size: 16px;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
         }
+        .tab.active {
+            border-color: #c58c85;
+            background: #fdf6f3;
+        }
+
+        /* --- Note buttons: single row of 7 notes --- */
         .note-buttons {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            margin: 10px auto;
+            width: 100%;
         }
-        .note-buttons input, .note-buttons button {
-            width: 28%;
+        .note-buttons input {
+            flex: 1;
+            margin: 3px;
             font-size: 20px;
-            margin: 5px;
+            padding: 12px 0;
         }
-        #seq {
-            width: 95%;
-            font-size: 18px;
-        }
-        select, input[type="range"], button {
-            width: 95%;
-            font-size: 18px;
-        }
+
+        /* --- Instrument + Tempo controls --- */
         label {
-            display: block;
-            margin-top: 10px;
+            font-weight: 600;
         }
-    }
+
+        select,
+        input[type="range"] {
+            width: 60%;           /* narrower for compact look */
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        /* Tempo display next to label */
+        #tempoDisplay {
+            display: inline-block;
+            font-weight: 600;
+            margin-left: 8px;
+            color: #3d3b33;
+        }
+
+        /* --- Sequence input --- */
+        #seq {
+            width: 90%;
+            text-align: center;
+            font-size: 18px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* --- Action buttons (Clear / Play / Save) --- */
+        button {
+            width: 30%;
+            min-width: 100px;
+            margin: 6px;
+            padding: 10px 0;
+            font-size: 16px;
+            border-radius: 8px;
+        }
+
+        /* --- Library cards --- */
+        #library-list .lib-card {
+            text-align: center;
+            padding: 12px;
+            margin: 10px 0;
+        }
+
+        #library-list button {
+            width: 30%;
+            min-width: 100px;
+            margin: 5px;
+            font-size: 15px;
+        }
+        }
+
     </style>
   </head>
 
@@ -146,10 +202,9 @@
         </select>
 
         <br><br>
-        <label><b>Tempo:</b></label>
+        <label><b>Tempo:</b> <span id="tempoDisplay">5</span></label>
         <input type="range" id="tempo" min="1" max="5" value="1" step="1"
-               oninput="tempoDisplay.innerText=this.value">
-        <span id="tempoDisplay">1</span>
+       oninput="tempoDisplay.innerText=this.value">
 
         <br><br>
         <input type="text" id="seq" placeholder='Use _ for pause, " for sustain'>
