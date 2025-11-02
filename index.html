@@ -9,289 +9,373 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
-        html, body {
-          margin: 0;
-          padding: 0;
-          height: 100%;
-          width: 100%;
-          overflow: hidden; /* prevent page scroll */
-          font-family: "Inter", sans-serif;
-          background: url("https://images.pexels.com/photos/7135058/pexels-photo-7135058.jpeg?auto=compress&cs=tinysrgb&w=1600")
-                      no-repeat center center fixed;
-          background-size: cover;
-          color: #333;
-        }
-        
-        /* ---------- Main Container ---------- */
-        .app {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 40px; /* leave room for footer */
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: flex-start;
-          background: rgba(255, 253, 249, 0.9);
-          border-radius: 0 0 18px 18px;
-          box-shadow: 0 8px 22px rgba(0,0,0,.05);
-          overflow: hidden;
-        }
-        
-        /* ---------- Header + Tabs ---------- */
-        h2 {
-          margin: 14px 0 10px;
-          color: #3d3b33;
-          text-align: center;
-        }
-        .tabs {
-          display: flex;
-          justify-content: center;
-          width: 100%;
-          border-bottom: 1px solid #f0e9e2;
-        }
-        .tab {
-          flex: 1;
-          text-align: center;
-          padding: 10px;
-          cursor: pointer;
-          border-bottom: 3px solid transparent;
-          font-weight: 600;
-          color: #666;
-          transition: 0.2s;
-        }
-        .tab.active {
-          border-color: #c58c85;
-          color: #3d3b33;
-          background: #fdf6f3;
-        }
-        .tab:hover {
-          background: #f8f3f0;
-        }
-        
-        /* ---------- Footer ---------- */
-        footer {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: 40px;
-          line-height: 40px;
-          background: rgba(255, 253, 249, 0.95);
-          text-align: center;
-          color: #7a756d;
-          font-size: 14px;
-          border-top: 1px solid #eae2d9;
-        }
-        
-        /* ---------- Tab Container ---------- */
-        .tab-container {
-          flex: 1;
-          width: 100%;
-          overflow: hidden; /* no outer scroll */
-          display: flex;
-          justify-content: center;
-        }
-        .tab-content {
-          flex: 1;
-          width: 100%;
-          overflow-y: auto;
-          padding: 10px 20px;
-          box-sizing: border-box;
-        }
-        
-        /* ---------- Create/Play ---------- */
-        .centered {
-          text-align: center;
-        }
-        
-        .note-buttons {
-          display: grid;
-          grid-template-columns: repeat(7, minmax(0, 1fr));
-          gap: 4px;
-          margin: 10px auto;
-          width: 100%;
-          box-sizing: border-box;
-        }
-        
-        .note-buttons button {
-          background: #e9f5ec;
-          border: none;
-          border-radius: 8px;
-          font-size: 16px;
-          padding: 8px 0;
-          color: #3d3b33;
-          transition: 0.2s;
-          cursor: pointer;
-        }
-        .note-buttons button:hover {
-          background: #d9f0e0;
-        }
-        
-        select,
-        input[type="text"],
-        input[type="range"],
-        button {
-          padding: 10px 14px;
-          border-radius: 8px;
-          border: 1px solid #d9c9b3;
-          font-size: 15px;
-          margin: 5px;
-          background: #fdfcf8;
-          color: #3d3b33;
-          box-sizing: border-box;
-        }
-        
-        label {
-          font-weight: 600;
-        }
-        
-        button {
-          background: #c8a99e;
-          color: #fff;
-          border: none;
-          cursor: pointer;
-          transition: 0.3s;
-        }
-        button:hover {
-          background: #b89286;
-        }
-        
-        #seq {
-          width: 90%;
-          text-align: center;
-          font-size: 18px;
-          margin: 12px auto;
-          display: block;
-        }
-        
-        #tempoDisplay {
-          display: inline-block;
-          font-weight: 600;
-          margin-left: 6px;
-          color: #3d3b33;
-        }
-        
-        /* ---------- Library ---------- */
-        #library {
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-          overflow: hidden; /* lock outer scroll */
-        }
-        #library h3 {
-          flex: 0 0 auto;
-          text-align: center;
-          background: #fffdf9;
-          margin: 0;
-          padding: 8px 0;
-          border-bottom: 1px solid #f0e9e2;
-          position: sticky;
-          top: 0;
-          z-index: 10;
-        }
-        #library-list {
-          flex: 1 1 auto;
-          overflow-y: auto;
-          padding: 8px 0;
-          -webkit-overflow-scrolling: touch;
-        }
-        #library-list::-webkit-scrollbar {
-          width: 6px;
-        }
-        #library-list::-webkit-scrollbar-thumb {
-          background-color: rgba(150, 150, 150, 0.3);
-          border-radius: 3px;
-        }
-        #library-list::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        #library-list .lib-card {
-          text-align: center;
-          padding: 10px;
-          margin: 8px auto;
-          width: 90%;
-          border-radius: 10px;
-          background: #fefcf8;
-          border: 1px solid #e8e1d9;
-        }
-        #library-list button {
-          width: 30%;
-          min-width: 90px;
-          margin: 4px;
-          font-size: 15px;
-          background: #c58c85;
-          color: #fff;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: background 0.2s;
-        }
-        #library-list button:hover {
-          background: #b97a74;
-        }
-        #library-list a,
-        #library-list a:visited,
-        #library-list a:hover,
-        #library-list a:active {
-          color: inherit;
-          text-decoration: none;
-          pointer-events: none;
-          cursor: default;
-        }
-        
-        /* ---------- Playing Highlight ---------- */
-        .lib-card.playing {
-          border-color: #a6d8a8;
-          background: #e8f9e9;
-          box-shadow: 0 0 8px rgba(100, 180, 120, 0.4);
-          transition: all 0.3s ease;
-        }
-        
-        /* ---------- Mobile Tweaks ---------- */
-        @media (max-width: 768px) {
-          .app {
-            bottom: 50px;
-          }
-          #seq {
-            width: 95%;
-            font-size: 17px;
-          }
-          button {
-            width: 30%;
-            min-width: 90px;
-          }
-          #library-list button {
-            width: 40%;
-          }
-        }
-        </style>
-        
-      
+  body {
+    font-family: "Inter", sans-serif;
+    background: url("https://images.pexels.com/photos/7135058/pexels-photo-7135058.jpeg?auto=compress&cs=tinysrgb&w=1600") no-repeat center center fixed;
+    background-size: cover;
+    color: #333;
+    margin: 0;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    touch-action: pan-y; /* vertical scroll only */
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 200px;
+    height: 6px;
+    border-radius: 5px;
+    background: linear-gradient(to right, #c58c85, #e3c6be);
+    outline: none;
+    margin: 0px;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 60px auto;
+    background: rgba(255, 253, 249, 0.9);
+    border-radius: 18px;
+    box-shadow: 0 8px 22px rgba(0,0,0,.05);
+    padding: 40px 50px;
+    box-sizing: border-box;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #3d3b33;
+  }
+
+  .tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+  }
+
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    font-weight: 600;
+    color: #666;
+    transition: .2s;
+  }
+
+  .tab.active {
+    border-color: #c58c85;
+    color: #3d3b33;
+    background: #fdf6f3;
+  }
+
+  .tab:hover {
+    background: #f8f3f0;
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  .centered {
+    text-align: center;
+  }
+
+  select, input[type="text"], button, input[type="range"] {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #d9c9b3;
+    font-size: 15px;
+    margin: 5px;
+    background: #fdfcf8;
+    color: #3d3b33;
+  }
+
+  button {
+    background: #c8a99e;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: .3s;
+  }
+
+  button:hover {
+    background: #b89286;
+  }
+
+  #seq {
+    width: 60%;
+  }
+
+  #library div {
+    border: 1px solid #e8e1d9;
+    background: #fefcf8;
+    padding: 12px;
+    margin: 8px auto;
+    border-radius: 10px;
+  }
+
+  #library button {
+    background: #c58c85;
+    font-size: 14px;
+    margin: 4px;
+    padding: 6px 10px;
+  }
+
+  #library button:hover {
+    background: #b97a74;
+  }
+
+  footer {
+    display: block;
+    width: 100%;
+    text-align: center;
+    color: #7a756d;
+    font-size: 14px;
+    margin: 20px 0 30px;
+  }
+
+  .lib-card.playing {
+    border-color: #a6d8a8;
+    background: #e8f9e9;
+    box-shadow: 0 0 8px rgba(100,180,120,0.4);
+    transition: all 0.3s ease;
+  }
+
+  /* -------- Responsive adjustments -------- */
+  @media (max-width: 768px) {
+    body {
+      font-size: 16px;
+      background-size: cover;
+    }
+
+    .container {
+      width: 95%;
+      padding: 16px;
+      margin: 20px auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* --- Keep Tabs fixed at top --- */
+    .tabs {
+      display: flex;
+      justify-content: space-evenly;
+      margin-bottom: 12px;
+      position: sticky;
+      top: 0;
+      background: #fffdf9;
+      z-index: 20;
+      border-bottom: 1px solid #f0e9e2;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      font-size: 16px;
+      border-bottom: 3px solid transparent;
+      font-weight: 600;
+    }
+
+    .tab.active {
+      border-color: #c58c85;
+      background: #fdf6f3;
+    }
+
+    /* --- Notes (1–7) --- */
+    .note-buttons {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+      margin: 10px auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .note-buttons button {
+      display: block;
+      width: 100%;
+      margin: 0;
+      padding: 10px 0;
+      min-width: 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      line-height: 1;
+      color: #3d3b33;
+      background: #e9f5ec;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .note-buttons button:hover {
+      background: #d9f0e0;
+    }
+
+    /* --- Instrument + Tempo compact alignment --- */
+    label {
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    select,
+    input[type="range"] {
+      width: 58%;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+
+    /* Tempo inline label value */
+    #tempoDisplay {
+      display: inline-block;
+      font-weight: 600;
+      margin-left: 6px;
+      color: #3d3b33;
+    }
+
+    /* Reduce vertical spacing between instrument and tempo */
+    select {
+      margin-bottom: 6px;
+    }
+
+    /* --- Sequence input --- */
+    #seq {
+      width: 90%;
+      text-align: center;
+      font-size: 18px;
+      margin: 12px auto;
+    }
+
+    /* --- Action buttons --- */
+    button {
+      width: 28%;
+      min-width: 90px;
+      margin: 6px;
+      padding: 10px 0;
+      font-size: 16px;
+      border-radius: 8px;
+    }
+
+    /* Save button matches Clear + Play total width */
+    #saveButton {
+      width: calc(56% + 12px);
+    }
+
+    /* --- Library scrollable area --- */
+    #library {
+      max-height: calc(100vh - 220px);
+      overflow-y: auto;
+      padding-bottom: 10px;
+    }
+
+    #library h3 {
+      position: sticky;
+      top: 45px;
+      background: #fffdf9;
+      padding: 6px 0;
+      margin: 0;
+      z-index: 15;
+    }
+
+    #library-list {
+      overflow-y: auto;
+      max-height: calc(100vh - 260px);
+    }
+
+    #library-list .lib-card {
+      text-align: center;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 10px;
+      background: #fefcf8;
+    }
+
+    #library-list button {
+      width: 30%;
+      min-width: 90px;
+      margin: 4px;
+      font-size: 15px;
+    }
+  }
+</style>
+
   </head>
 
   <body>
-    <div class="app">
-        <h2>🎶 Alankar Maker</h2>
-        <div class="tabs">
+    <div class="container">
+      <h2>Alankar Maker</h2>
+      <div class="tabs">
         <div class="tab active" onclick="openTab('create')">Create / Play</div>
         <div class="tab" onclick="openTab('library')">Library</div>
+      </div>
+
+      <!-- Create Tab -->
+      <div id="create" class="tab-content active centered">
+        <div class="note-buttons">
+            <button value="1">1</button>
+            <button value="2">2</button>
+            <button value="3">3</button>
+            <button value="4">4</button>
+            <button value="5">5</button>
+            <button value="6">6</button>
+            <button value="7">7</button>
         </div>
-    
-        <div class="tab-container">
-        <div id="create" class="tab-content active centered">
-            <!-- Create/Play content -->
-        </div>
-    
-        <div id="library" class="tab-content">
-            <h3>🎵 Saved Alankars</h3>
-            <div id="library-list"></div>
-        </div>
-        </div>
+
+        <br>
+        <label><b>Instrument:</b></label>
+        <select id="instrument">
+            <option value="piano">Piano</option>
+            <option value="organ">Organ</option>
+            <option value="guitar">Guitar</option>
+            <option value="flute">Flute</option>
+            <option value="violin">Violin</option>
+        </select>
+
+        <br><br>
+        <label><b>Tempo:</b> <span id="tempoDisplay">3</span></label>
+        <input type="range" id="tempo" min="1" max="5" value="3" step="1"
+       oninput="tempoDisplay.innerText=this.value">
+
+        <br><br>
+        <!-- <input type="text" id="seq" placeholder='Use _ for pause, " for sustain'> -->
+        <input 
+        type="text" 
+        id="seq"
+        inputmode="text"
+        pattern='[1-7_\" ]*'
+        placeholder='Use _ for pause, " for sustain'
+        autocorrect="off"
+        autocapitalize="none"
+        autocomplete="off">
+        <button onclick="clear_sequence()">Clear</button>
+        <button onclick="play_sequence()">Play</button>
+
+        <br><br>
+        <button id="saveButton" onclick="saveAlankar()">💾 Save to Public Library</button>
+      </div>
+
+      <!-- Library Tab -->
+      <div id="library" class="tab-content">
+        <div id="library-list"></div>
+      </div>
     </div>
-    
-    <footer>© 2025 Alankar Maker —- SSN</footer>
+    <footer>© 2025 Alankar Maker - SSN </footer>
 
     <script type="module">
         // ---------------- Firebase Imports ----------------
