@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Alankar Maker 🎶</title>
+    <title>Alankar Maker</title>
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -125,7 +125,7 @@
 
   <body>
     <div class="container">
-      <h2>🎶 Alankar Maker (Shared Library)</h2>
+      <h2>Alankar Maker</h2>
       <div class="tabs">
         <div class="tab active" onclick="openTab('create')">Create / Play</div>
         <div class="tab" onclick="openTab('library')">Library</div>
@@ -154,7 +154,7 @@
         </select>
 
         <br><br>
-        <label><b>Tempo (Speed):</b></label>
+        <label><b>Tempo:</b></label>
         <input type="range" id="tempo" min="1" max="5" value="1" step="1"
                oninput="tempoDisplay.innerText=this.value">
         <span id="tempoDisplay">1</span>
@@ -165,16 +165,16 @@
         <button onclick="play_sequence()">Play</button>
 
         <br><br>
-        <button onclick="saveAlankar()">💾 Save to Shared Library</button>
+        <button onclick="saveAlankar()">💾 Save to Public Library</button>
       </div>
 
       <!-- Library Tab -->
       <div id="library" class="tab-content">
-        <h3>🎵 Shared Alankar Library</h3>
+        <h3>Alankar Library</h3>
         <div id="library-list"></div>
       </div>
     </div>
-    <footer>© 2025 Alankar Maker</footer>
+    <footer>© 2025 Alankar Maker - SSN </footer>
 
     <script type="module">
         // ---------------- Firebase Imports ----------------
