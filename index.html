@@ -380,6 +380,7 @@
           await ac.resume();
       
           let raw = document.getElementById('seq').value.trim();
+          raw = raw.replace(/[“”]/g, '"');
           raw = raw.replace(/[^1-7_""]/g, '');
           document.getElementById('seq').value = raw;
           if (!raw) return alert("Enter a valid sequence with 1–7, _ or \"");
