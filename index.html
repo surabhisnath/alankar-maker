@@ -1,0 +1,278 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Alankar Maker 🎶</title>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import {
+        getFirestore, collection, addDoc, getDocs, updateDoc, doc,
+        increment, onSnapshot, query, orderBy
+      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+      // 🔥 Your Firebase config
+      const firebaseConfig = {
+        apiKey: "YOUR_KEY_HERE",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      window.db = db;
+    </script>
+
+    <!-- SoundFont Player -->
+    <script src="https://unpkg.com/soundfont-player@0.12.0/dist/soundfont-player.min.js"></script>
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background: url("https://images.pexels.com/photos/7135058/pexels-photo-7135058.jpeg?auto=compress&cs=tinysrgb&w=1600") no-repeat center center fixed;
+        background-size: cover;
+        color: #333;
+        margin: 0;
+      }
+      .container {
+        max-width: 800px; margin: 60px auto;
+        background: rgba(255, 253, 249, 0.9);
+        border-radius: 18px;
+        box-shadow: 0 8px 22px rgba(0,0,0,.05);
+        padding: 40px 50px;
+      }
+      h2 { text-align:center; margin-bottom:25px; color:#3d3b33; }
+      .tabs { display:flex; justify-content:center; margin-bottom:25px; }
+      .tab { flex:1; text-align:center; padding:12px; cursor:pointer;
+             border-bottom:3px solid transparent; font-weight:600; color:#666; transition:.2s; }
+      .tab.active { border-color:#c58c85; color:#3d3b33; background:#fdf6f3; }
+      .tab:hover { background:#f8f3f0; }
+      .tab-content { display:none; }
+      .tab-content.active { display:block; }
+      .centered { text-align:center; }
+      .note-buttons input { margin:6px; padding:12px 20px; font-size:16px; border-radius:8px;
+                            border:none; background:#e9f5ec; color:#3d3b33; transition:.2s; cursor:pointer; }
+      .note-buttons input:hover { background:#d9f0e0; }
+      select, input[type="text"], button, input[type="range"] {
+        padding:10px 14px; border-radius:8px; border:1px solid #d9c9b3;
+        font-size:15px; margin:5px; background:#fdfcf8; color:#3d3b33;
+      }
+      button { background:#c8a99e; color:#fff; border:none; cursor:pointer; transition:.3s; }
+      button:hover { background:#b89286; }
+      #seq { width:60%; }
+      #library div { border:1px solid #e8e1d9; background:#fefcf8;
+                     padding:12px; margin:8px auto; border-radius:10px; }
+      #library button { background:#c58c85; font-size:14px; margin:4px; padding:6px 10px; }
+      #library button:hover { background:#b97a74; }
+      footer { text-align:center; color:#7a756d; font-size:14px; margin-top:30px; }
+      .lib-card.playing {
+        border-color:#a6d8a8; background:#e8f9e9;
+        box-shadow:0 0 8px rgba(100,180,120,0.4);
+        transition:all 0.3s ease;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h2>🎶 Alankar Maker (Shared Library)</h2>
+      <div class="tabs">
+        <div class="tab active" onclick="openTab('create')">Create / Play</div>
+        <div class="tab" onclick="openTab('library')">Library</div>
+      </div>
+
+      <!-- Create Tab -->
+      <div id="create" class="tab-content active centered">
+        <div class="note-buttons">
+          <input type="button" value="1" onclick="append_note(this.value)">
+          <input type="button" value="2" onclick="append_note(this.value)">
+          <input type="button" value="3" onclick="append_note(this.value)">
+          <input type="button" value="4" onclick="append_note(this.value)">
+          <input type="button" value="5" onclick="append_note(this.value)">
+          <input type="button" value="6" onclick="append_note(this.value)">
+          <input type="button" value="7" onclick="append_note(this.value)">
+        </div>
+
+        <br>
+        <label><b>Instrument:</b></label>
+        <select id="instrument" onchange="loadInstrument()">
+          <option value="acoustic_grand_piano">Piano</option>
+          <option value="sitar">Sitar</option>
+          <option value="drawbar_organ">Harmonium</option>
+          <option value="acoustic_guitar_nylon">Guitar</option>
+          <option value="flute">Flute</option>
+          <option value="violin">Violin</option>
+        </select>
+
+        <br><br>
+        <label><b>Tempo (Speed):</b></label>
+        <input type="range" id="tempo" min="1" max="5" value="1" step="1"
+               oninput="tempoDisplay.innerText=this.value">
+        <span id="tempoDisplay">1</span>
+
+        <br><br>
+        <input type="text" id="seq" placeholder='Use _ for pause, " for sustain'>
+        <button onclick="clear_sequence()">Clear</button>
+        <button onclick="play_sequence()">Play</button>
+
+        <br><br>
+        <button onclick="saveAlankar()">💾 Save to Shared Library</button>
+      </div>
+
+      <!-- Library Tab -->
+      <div id="library" class="tab-content">
+        <h3>🎵 Shared Alankar Library</h3>
+        <div id="library-list"></div>
+      </div>
+    </div>
+    <footer>© 2025 Alankar Maker</footer>
+
+    <script>
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      let ac = new AudioContext();
+      let currentInstrumentPlayer = null;
+      let currentPlaybackAbort = null;
+      const NOTE_MAP = {'1':'C4','2':'D4','3':'E4','4':'F4','5':'G4','6':'A4','7':'B4',
+                        '8':'C5','9':'D5','10':'E5','11':'F5','12':'G5','13':'A5','14':'B5'};
+
+      async function loadInstrument(){
+        const instName = document.getElementById('instrument').value;
+        currentInstrumentPlayer = await Soundfont.instrument(ac, instName);
+      }
+
+      function append_note(v){ document.getElementById('seq').value += v.trim(); }
+
+      function clear_sequence(){
+        if(currentPlaybackAbort){ currentPlaybackAbort.abort(); currentPlaybackAbort=null; }
+        document.querySelectorAll('.lib-card.playing').forEach(el=>el.classList.remove('playing'));
+        try { if(ac && ac.state==="running") ac.suspend(); } catch(e){}
+        document.getElementById('seq').value="";
+      }
+
+      function parseSequence(raw){
+        const clean = raw.replace(/[^1-7_""]/g,'');
+        document.getElementById('seq').value = clean;
+        const chars = clean.split('');
+        const parsed=[];
+        for(let i=0;i<chars.length;i++){
+          const ch=chars[i];
+          if(ch==='"'){ if(parsed.length>0) parsed[parsed.length-1].mult+=1; }
+          else{ parsed.push({note:ch,mult:1}); }
+        }
+        return parsed;
+      }
+
+      function computeStepMs(){
+        const t=parseInt(document.getElementById('tempo').value,10);
+        const mapped=t+4;
+        return Math.max(80,560-(mapped*48));
+      }
+
+      async function play_sequence(){
+        if(!currentInstrumentPlayer) await loadInstrument();
+        if(currentPlaybackAbort) currentPlaybackAbort.abort();
+        const controller=new AbortController();
+        currentPlaybackAbort=controller;
+        await ac.resume();
+
+        let raw=document.getElementById('seq').value.trim();
+        if(!raw) return alert("Enter a sequence first!");
+        const base=parseSequence(raw);
+        const expanded=[];
+        for(let i=0;i<4;i++) base.forEach(p=>expanded.push({note:(p.note==='_'?'_':String(Number(p.note)+i)),mult:p.mult}));
+
+        const sleep=ms=>new Promise(r=>{const id=setTimeout(r,ms);controller.signal.addEventListener('abort',()=>clearTimeout(id),{once:true});});
+
+        for(let i=0;i<expanded.length;i++){
+          if(controller.signal.aborted) return;
+          const stepMs=computeStepMs();
+          const {note,mult}=expanded[i];
+          if(note==='_'){ await sleep(stepMs*mult); continue; }
+          const midi=NOTE_MAP[note];
+          if(!midi){ await sleep(stepMs*mult); continue; }
+          const durSec=(stepMs*mult)/1000*0.9;
+          currentInstrumentPlayer.play(midi,ac.currentTime,{duration:durSec});
+          await sleep(stepMs*mult);
+        }
+        currentPlaybackAbort=null;
+      }
+
+      async function saveAlankar(){
+        const seq=document.getElementById('seq').value.trim();
+        if(!seq) return alert("Enter a sequence first!");
+        const instrument=document.getElementById('instrument').value;
+        const tempo=parseInt(document.getElementById('tempo').value,10);
+        const timestamp=Date.now();
+        const snapshot=await getDocs(collection(db,"alankars"));
+        const exists=snapshot.docs.some(d=>d.data().sequence===seq);
+        if(exists) return alert("Already exists!");
+        await addDoc(collection(db,"alankars"),{name:seq,sequence:seq,instrument,tempo,votes:0,time:timestamp});
+        alert("Saved to shared library!");
+      }
+
+      function renderLibrary(){
+        const div=document.getElementById('library-list');
+        div.innerHTML="<p>Loading...</p>";
+        const q=query(collection(db,"alankars"),orderBy("votes","desc"),orderBy("time","desc"));
+        onSnapshot(q,snapshot=>{
+          if(snapshot.empty){ div.innerHTML="<p>No Alankars yet.</p>"; return; }
+          div.innerHTML=snapshot.docs.map(d=>{
+            const a=d.data();
+            return `<div id="lib-item-${d.id}" class="lib-card">
+              <b>${a.name}</b> (${a.instrument}, tempo ${a.tempo}) — ❤️ ${a.votes}<br>
+              <button onclick="playFromFirestore('${d.id}')">▶ Play</button>
+              <button onclick="voteFirestore('${d.id}')">👍 Vote</button>
+            </div>`;
+          }).join('');
+        });
+      }
+
+      async function voteFirestore(id){
+        const ref=doc(db,"alankars",id);
+        await updateDoc(ref,{votes:increment(1)});
+      }
+
+      async function playFromFirestore(id){
+        const docRef=doc(db,"alankars",id);
+        const snapshot=await getDocs(collection(db,"alankars"));
+        const item=snapshot.docs.find(d=>d.id===id)?.data();
+        if(!item) return;
+        document.getElementById('instrument').value=item.instrument;
+        document.getElementById('tempo').value=item.tempo;
+        document.getElementById('tempoDisplay').innerText=item.tempo;
+        document.getElementById('seq').value=item.sequence;
+        await loadInstrument();
+        const card=document.querySelector(`#lib-item-${id}`);
+        document.querySelectorAll('.lib-card').forEach(el=>el.classList.remove('playing'));
+        card.classList.add('playing');
+        await play_sequence();
+        card.classList.remove('playing');
+      }
+
+      function openTab(tab){
+        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+        document.querySelector(`[onclick="openTab('${tab}')"]`).classList.add('active');
+        document.getElementById(tab).classList.add('active');
+        if(tab==='library') renderLibrary();
+      }
+
+      // Pre-warm audio context
+      async function warmUpAudio(){
+        if(window.warmedUp) return; window.warmedUp=true;
+        try{
+          await ac.resume();
+          if(!currentInstrumentPlayer) await loadInstrument();
+          currentInstrumentPlayer.play("C4",ac.currentTime,{gain:0.0001,duration:0.05});
+          console.log("🎵 Audio pre-warmed");
+        }catch(e){console.warn("Autoplay blocked, will warm on click.");}
+      }
+      window.addEventListener("load",warmUpAudio);
+      window.addEventListener("click",warmUpAudio,{once:true});
+      window.addEventListener("touchstart",warmUpAudio,{once:true});
+
+      window.onload=()=>{loadInstrument(); renderLibrary();};
+    </script>
+  </body>
+</html>
