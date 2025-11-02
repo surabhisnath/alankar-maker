@@ -280,21 +280,12 @@
     /* --- Library scrollable area --- */
     #library {
       max-height: calc(100vh - 220px);
-      overflow-y: auto;
+      overflow-y: hidden;
       padding-bottom: 10px;
     }
 
-    #library h3 {
-      position: sticky;
-      top: 45px;
-      background: #fffdf9;
-      padding: 6px 0;
-      margin: 0;
-      z-index: 15;
-    }
-
     #library-list {
-      overflow-y: auto;
+      overflow-y: scroll;
       max-height: calc(100vh - 260px);
     }
 
@@ -375,6 +366,7 @@
         <div id="library-list"></div>
       </div>
     </div>
+
     <footer>© 2025 Alankar Maker - SSN </footer>
 
     <script type="module">
