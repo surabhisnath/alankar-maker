@@ -223,9 +223,61 @@
             margin: 4px;
             font-size: 15px;
         }
-
-
         }
+
+        /* --- Center alignment fix for all layouts --- */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  margin: 0 auto;               /* true centering */
+  padding-left: 0;
+  padding-right: 0;
+  max-width: 800px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ensure all grid/flex children stay inside container width */
+.container > * {
+  box-sizing: border-box;
+}
+
+/* mobile fine-tune */
+@media (max-width: 768px) {
+  body {
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .container {
+    width: 95%;
+    margin: 0 auto;
+    padding: 16px 10px;
+  }
+
+  .note-buttons {
+    justify-items: center;
+  }
+
+  .note-buttons button {
+    margin: 0 auto;
+  }
+
+  #seq, select, input[type="range"], button {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
 
 
     </style>
