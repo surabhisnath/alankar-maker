@@ -405,7 +405,7 @@
     try {
         const elem = document.createElement("audio");
         // silent base64-encoded mp3 (0.1s silence)
-        elem.src = "data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA...";
+        elem.src = "https://cdn.jsdelivr.net/gh/anars/blank-audio/1-second-of-silence.mp3";
         elem.loop = false;
         elem.volume = 0;
         await elem.play(); // triggers speaker route
