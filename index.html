@@ -319,6 +319,12 @@
         }
       
         // ---------------- Warmup ----------------
+        window.onload = () => {
+            loadInstrument();
+            renderLibrary();
+        };
+
+
         let warmedUp = false;
         function warmUpAudio() {
             if (warmedUp) return;
@@ -338,11 +344,6 @@
         // attach listener once
         window.addEventListener("click", warmUpAudio, { once: true });
         window.addEventListener("touchstart", warmUpAudio, { once: true });
-        
-        window.onload = () => {
-          loadInstrument();
-          renderLibrary();
-        };
     
         window.append_note = append_note;
         window.clear_sequence = clear_sequence;
