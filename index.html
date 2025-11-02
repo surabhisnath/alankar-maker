@@ -538,172 +538,102 @@
           });
         }
       
-        // async function playFromFirestore(id) {
-        //   const snapshot = await getDocs(collection(db, "alankars"));
-        //   const item = snapshot.docs.find(d => d.id === id)?.data();
-        //   if (!item) return;
+        async function playFromFirestore(id) {
+          const snapshot = await getDocs(collection(db, "alankars"));
+          const item = snapshot.docs.find(d => d.id === id)?.data();
+          if (!item) return;
       
-        //   document.getElementById('instrument').value = item.instrument;
-        //   document.getElementById('tempo').value = item.tempo;
-        //   document.getElementById('tempoDisplay').innerText = item.tempo;
-        //   document.getElementById('seq').value = item.sequence;
+          document.getElementById('instrument').value = item.instrument;
+          document.getElementById('tempo').value = item.tempo;
+          document.getElementById('tempoDisplay').innerText = item.tempo;
+          document.getElementById('seq').value = item.sequence;
       
-        //   await loadInstrument();
-        //   await play_sequence();
-        // }
-
-        // async function playFromFirestore(id) {
-        // // Stop any ongoing playback first
-        // if (currentPlaybackAbort) currentPlaybackAbort.abort();
-
-        // // Remove highlight from all previous cards
-        // document.querySelectorAll('.lib-card').forEach(el => el.classList.remove('playing'));
-
-        // const card = document.getElementById(`lib-item-${id}`);
-        // if (card) card.classList.add('playing');
-
-        // // Fetch document data
-        // const docRef = doc(db, "alankars", id);
-        // const snapshot = await getDoc(docRef);
-        // if (!snapshot.exists()) return;
-
-        // const item = snapshot.data();
-        // document.getElementById('instrument').value = item.instrument;
-        // document.getElementById('tempo').value = item.tempo;
-        // document.getElementById('tempoDisplay').innerText = item.tempo;
-        // document.getElementById('seq').value = item.sequence;
-
-        // await loadInstrument();
-
-        // // Prepare abort controller for playback
-        // const controller = new AbortController();
-        // currentPlaybackAbort = controller;
-
-        // const raw = item.sequence.trim();
-        // const base = parseSequence(raw);
-        // const expanded = [];
-        // for (let j = 0; j < 4; j++) {
-        //     base.forEach(p => expanded.push({
-        //     note: (p.note === '_' ? '_' : String(Number(p.note) + j)),
-        //     mult: p.mult
-        //     }));
-        // }
-
-        // const sleep = ms => new Promise(r => {
-        //     const id = setTimeout(r, ms);
-        //     controller.signal.addEventListener('abort', () => clearTimeout(id), { once: true });
-        // });
-
-        // for (let j = 0; j < expanded.length; j++) {
-        //     if (controller.signal.aborted) {
-        //     if (card) card.classList.remove('playing');
-        //     return;
-        //     }
-
-        //     const stepMs = computeStepMs();
-        //     const { note, mult } = expanded[j];
-
-        //     if (note === '_') {
-        //     await sleep(stepMs * mult);
-        //     continue;
-        //     }
-
-        //     const midi = NOTE_MAP[note];
-        //     if (!midi) {
-        //     await sleep(stepMs * mult);
-        //     continue;
-        //     }
-
-        //     const durSec = (stepMs * mult) / 1000 * 0.9;
-        //     currentInstrumentPlayer.play(midi, ac.currentTime, { duration: durSec });
-        //     await sleep(stepMs * mult);
-        // }
-
-        // // 🔹 Playback finished — remove highlight
-        // if (card) card.classList.remove('playing');
-        // currentPlaybackAbort = null;
-        // }
+          await loadInstrument();
+          await play_sequence();
+        }
 
         async function playFromFirestore(id) {
-  try {
-    // stop any current playback first
-    if (currentPlaybackAbort) currentPlaybackAbort.abort();
+            // Stop any ongoing playback first
+            if (currentPlaybackAbort) currentPlaybackAbort.abort();
 
-    // locate Firestore doc
-    const docRef = doc(db, "alankars", id);
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) return alert("Alankar not found!");
-    const item = docSnap.data();
+            // Remove highlight from all previous cards
+            document.querySelectorAll('.lib-card').forEach(el => el.classList.remove('playing'));
 
-    // highlight active card
-    const card = document.getElementById(`lib-item-${id}`);
-    document.querySelectorAll(".lib-card").forEach((el) => el.classList.remove("playing"));
-    if (card) card.classList.add("playing");
+            const card = document.getElementById(`lib-item-${id}`);
+            if (card) card.classList.add('playing');
 
-    // ensure AudioContext resumed
-    if (ac.state === "suspended") await ac.resume();
+            // Fetch document data
+            const docRef = doc(db, "alankars", id);
+            const snapshot = await getDoc(docRef);
+            if (!snapshot.exists()) return;
 
-    // load a fresh instrument (no UI sync)
-    const tempInstrument = await Soundfont.instrument(ac, item.instrument);
+            const item = snapshot.data();
+            
+            tempint = document.getElementById('instrument').value;
+            temptemp = document.getElementById('tempo').value;
+            temptempdisp = document.getElementById('tempoDisplay').innerText;
+            tempseq = document.getElementById('seq').value;
 
-    // prepare abort controller
-    const controller = new AbortController();
-    currentPlaybackAbort = controller;
+            document.getElementById('instrument').value = item.instrument;
+            document.getElementById('tempo').value = item.tempo;
+            document.getElementById('tempoDisplay').innerText = item.tempo;
+            document.getElementById('seq').value = item.sequence;
 
-    // parse and expand notes
-    const base = parseSequence(item.sequence);
-    const expanded = [];
-    for (let j = 0; j < 4; j++) {
-      base.forEach((p) =>
-        expanded.push({
-          note: p.note === "_" ? "_" : String(Number(p.note) + j),
-          mult: p.mult,
-        })
-      );
-    }
+            await loadInstrument();
 
-    // tempo: compute internally without touching user slider
-    const originalTempo = document.getElementById("tempo").value;
-    document.getElementById("tempo").value = item.tempo;
-    const stepMs = computeStepMs();
-    document.getElementById("tempo").value = originalTempo;
+            // Prepare abort controller for playback
+            const controller = new AbortController();
+            currentPlaybackAbort = controller;
 
-    // sleep helper
-    const sleep = (ms) =>
-      new Promise((resolve) => {
-        const tid = setTimeout(resolve, ms);
-        controller.signal.addEventListener("abort", () => clearTimeout(tid), { once: true });
-      });
+            const raw = item.sequence.trim();
+            const base = parseSequence(raw);
+            const expanded = [];
+            for (let j = 0; j < 4; j++) {
+                base.forEach(p => expanded.push({
+                note: (p.note === '_' ? '_' : String(Number(p.note) + j)),
+                mult: p.mult
+                }));
+            }
 
-    // playback loop
-    for (const { note, mult } of expanded) {
-      if (controller.signal.aborted) break;
+            const sleep = ms => new Promise(r => {
+                const id = setTimeout(r, ms);
+                controller.signal.addEventListener('abort', () => clearTimeout(id), { once: true });
+            });
 
-      if (note === "_") {
-        await sleep(stepMs * mult);
-        continue;
-      }
+            for (let j = 0; j < expanded.length; j++) {
+                if (controller.signal.aborted) {
+                if (card) card.classList.remove('playing');
+                return;
+                }
 
-      const midi = NOTE_MAP[note];
-      if (!midi) {
-        await sleep(stepMs * mult);
-        continue;
-      }
+                const stepMs = computeStepMs();
+                const { note, mult } = expanded[j];
 
-      const durSec = (stepMs * mult) / 1000 * 0.9;
-      tempInstrument.play(midi, ac.currentTime, { duration: durSec });
-      await sleep(stepMs * mult);
-    }
+                if (note === '_') {
+                await sleep(stepMs * mult);
+                continue;
+                }
 
-    // cleanup
-    if (card) card.classList.remove("playing");
-    currentPlaybackAbort = null;
-  } catch (err) {
-    console.error("Error playing alankar:", err);
-  }
-}
+                const midi = NOTE_MAP[note];
+                if (!midi) {
+                await sleep(stepMs * mult);
+                continue;
+                }
 
+                const durSec = (stepMs * mult) / 1000 * 0.9;
+                currentInstrumentPlayer.play(midi, ac.currentTime, { duration: durSec });
+                await sleep(stepMs * mult);
+            }
 
+            // 🔹 Playback finished — remove highlight
+            if (card) card.classList.remove('playing');
+            currentPlaybackAbort = null;
+
+            document.getElementById('instrument').value = tempint;
+            document.getElementById('tempo').value = temptemp;
+            document.getElementById('tempoDisplay').innerText = temptempdisp;
+            document.getElementById('seq').value = tempseq;
+        }
             
         async function voteFirestore(id) {
           const docRef = doc(db, "alankars", id);
