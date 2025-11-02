@@ -398,7 +398,25 @@
 
       // ---------------- SoundFont ----------------
       const AudioContext = window.AudioContext || window.webkitAudioContext;
-      const ac = new AudioContext();
+      const ac = new AudioContext({ latencyHint: "interactive" });
+
+    // ---- Force speaker route for iPhone Safari ----
+    async function forceSpeakerRoute() {
+    try {
+        const elem = document.createElement("audio");
+        // silent base64-encoded mp3 (0.1s silence)
+        elem.src = "data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA...";
+        elem.loop = false;
+        elem.volume = 0;
+        await elem.play(); // triggers speaker route
+        elem.pause();
+        elem.remove();
+        console.log("✅ Speaker route forced on iOS");
+    } catch (err) {
+        console.warn("Speaker routing could not be forced:", err);
+    }
+    }
+
       let currentInstrumentPlayer = null;
       let currentPlaybackAbort = null;
 
@@ -608,11 +626,12 @@
       const unlockDiv = document.getElementById("audioUnlock");
       async function unlockAudio() {
         try {
-          await ac.resume();
-          if (!currentInstrumentPlayer) await loadInstrument();
-          unlockDiv.style.display = "none";
+            await ac.resume();
+            await forceSpeakerRoute();  // <— ensure media route is through speaker
+            if (!currentInstrumentPlayer) await loadInstrument();
+            unlockDiv.style.display = "none";
         } catch (err) {
-          console.error("Audio unlock failed:", err);
+            console.error("Audio unlock failed:", err);
         }
       }
       ["click", "touchstart", "touchend"].forEach(evt =>
