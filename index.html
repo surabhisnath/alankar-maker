@@ -9,86 +9,170 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
-      body {
-        font-family: "Inter", sans-serif;
-        background: url("https://images.pexels.com/photos/7135058/pexels-photo-7135058.jpeg?auto=compress&cs=tinysrgb&w=1600") no-repeat center center fixed;
-        background-size: cover;
-        color: #333;
-        margin: 0;
-      }
-      input[type="range"] {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 200px;
-        height: 6px;
-        border-radius: 5px;
-        background: linear-gradient(to right, #c58c85, #e3c6be);
-        outline: none;
-        margin: 0px;
-        padding: 0;
-      }
-      .container {
-        max-width: 800px; margin: 60px auto;
-        background: rgba(255, 253, 249, 0.9);
-        border-radius: 18px;
-        box-shadow: 0 8px 22px rgba(0,0,0,.05);
-        padding: 40px 50px;
-      }
-      h2 { text-align:center; margin-bottom:25px; color:#3d3b33; }
-      .tabs { display:flex; justify-content:center; margin-bottom:25px; }
-      .tab { flex:1; text-align:center; padding:12px; cursor:pointer;
-             border-bottom:3px solid transparent; font-weight:600; color:#666; transition:.2s; }
-      .tab.active { border-color:#c58c85; color:#3d3b33; background:#fdf6f3; }
-      .tab:hover { background:#f8f3f0; }
-      .tab-content { display:none; }
-      .tab-content.active { display:block; }
-      .centered { text-align:center; }
-      .note-buttons input { margin:6px; padding:12px 20px; font-size:16px; border-radius:8px;
-                            border:none; background:#e9f5ec; color:#3d3b33; transition:.2s; cursor:pointer; }
-      .note-buttons input:hover { background:#d9f0e0; }
-      select, input[type="text"], button, input[type="range"] {
-        padding:10px 14px; border-radius:8px; border:1px solid #d9c9b3;
-        font-size:15px; margin:5px; background:#fdfcf8; color:#3d3b33;
-      }
-      button { background:#c8a99e; color:#fff; border:none; cursor:pointer; transition:.3s; }
-      button:hover { background:#b89286; }
-      #seq { width:60%; }
-      #library div { border:1px solid #e8e1d9; background:#fefcf8;
-                     padding:12px; margin:8px auto; border-radius:10px; }
-      #library button { background:#c58c85; font-size:14px; margin:4px; padding:6px 10px; }
-      #library button:hover { background:#b97a74; }
-      footer { text-align:center; color:#7a756d; font-size:14px; margin-top:30px; }
-      .lib-card.playing {
-        border-color:#a6d8a8; background:#e8f9e9;
-        box-shadow:0 0 8px rgba(100,180,120,0.4);
-        transition:all 0.3s ease;
-      }
-      html, body {
-        overflow-x: hidden;
-        max-width: 100%;
-        touch-action: pan-y; /* allow vertical scroll only */
-      }
-      /* -------- Responsive adjustments -------- */
-      /* --- Improved Mobile Layout (with aligned tabs and musical flow) --- */
-        @media (max-width: 768px) {
         body {
+          font-family: "Inter", sans-serif;
+          background: url("https://images.pexels.com/photos/7135058/pexels-photo-7135058.jpeg?auto=compress&cs=tinysrgb&w=1600") no-repeat center center fixed;
+          background-size: cover;
+          color: #333;
+          margin: 0;
+        }
+      
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          max-width: 100%;
+          overflow-x: hidden;
+          touch-action: pan-y; /* vertical scroll only */
+        }
+      
+        input[type="range"] {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 200px;
+          height: 6px;
+          border-radius: 5px;
+          background: linear-gradient(to right, #c58c85, #e3c6be);
+          outline: none;
+          margin: 0px;
+          padding: 0;
+        }
+      
+        .container {
+          max-width: 800px;
+          margin: 60px auto;
+          background: rgba(255, 253, 249, 0.9);
+          border-radius: 18px;
+          box-shadow: 0 8px 22px rgba(0,0,0,.05);
+          padding: 40px 50px;
+          box-sizing: border-box;
+        }
+      
+        h2 {
+          text-align: center;
+          margin-bottom: 25px;
+          color: #3d3b33;
+        }
+      
+        .tabs {
+          display: flex;
+          justify-content: center;
+          margin-bottom: 25px;
+        }
+      
+        .tab {
+          flex: 1;
+          text-align: center;
+          padding: 12px;
+          cursor: pointer;
+          border-bottom: 3px solid transparent;
+          font-weight: 600;
+          color: #666;
+          transition: .2s;
+        }
+      
+        .tab.active {
+          border-color: #c58c85;
+          color: #3d3b33;
+          background: #fdf6f3;
+        }
+      
+        .tab:hover {
+          background: #f8f3f0;
+        }
+      
+        .tab-content {
+          display: none;
+        }
+      
+        .tab-content.active {
+          display: block;
+        }
+      
+        .centered {
+          text-align: center;
+        }
+      
+        select, input[type="text"], button, input[type="range"] {
+          padding: 10px 14px;
+          border-radius: 8px;
+          border: 1px solid #d9c9b3;
+          font-size: 15px;
+          margin: 5px;
+          background: #fdfcf8;
+          color: #3d3b33;
+        }
+      
+        button {
+          background: #c8a99e;
+          color: #fff;
+          border: none;
+          cursor: pointer;
+          transition: .3s;
+        }
+      
+        button:hover {
+          background: #b89286;
+        }
+      
+        #seq {
+          width: 60%;
+        }
+      
+        #library div {
+          border: 1px solid #e8e1d9;
+          background: #fefcf8;
+          padding: 12px;
+          margin: 8px auto;
+          border-radius: 10px;
+        }
+      
+        #library button {
+          background: #c58c85;
+          font-size: 14px;
+          margin: 4px;
+          padding: 6px 10px;
+        }
+      
+        #library button:hover {
+          background: #b97a74;
+        }
+      
+        footer {
+          display: block;
+          width: 100%;
+          text-align: center;
+          color: #7a756d;
+          font-size: 14px;
+          margin: 20px 0 30px;
+        }
+      
+        .lib-card.playing {
+          border-color: #a6d8a8;
+          background: #e8f9e9;
+          box-shadow: 0 0 8px rgba(100,180,120,0.4);
+          transition: all 0.3s ease;
+        }
+      
+        /* -------- Responsive adjustments -------- */
+        @media (max-width: 768px) {
+          body {
             font-size: 16px;
             background-size: cover;
-            overflow-x: hidden;
-        }
-
-        .container {
+          }
+      
+          .container {
             width: 95%;
             padding: 16px;
             margin: 20px auto;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             position: relative;
             overflow: hidden;
-        }
-
-        /* --- Keep Tabs fixed at top --- */
-        .tabs {
+          }
+      
+          /* --- Keep Tabs fixed at top --- */
+          .tabs {
             display: flex;
             justify-content: space-evenly;
             margin-bottom: 12px;
@@ -97,191 +181,140 @@
             background: #fffdf9;
             z-index: 20;
             border-bottom: 1px solid #f0e9e2;
-        }
-
-        .tab {
+          }
+      
+          .tab {
             flex: 1;
             text-align: center;
             padding: 10px;
             font-size: 16px;
             border-bottom: 3px solid transparent;
             font-weight: 600;
-        }
-
-        .tab.active {
+          }
+      
+          .tab.active {
             border-color: #c58c85;
             background: #fdf6f3;
-        }
-
-        /* --- Notes (1–7) --- */
-        .note-buttons {
+          }
+      
+          /* --- Notes (1–7) --- */
+          .note-buttons {
             display: grid;
-            grid-template-columns: repeat(7, 1fr);  /* 7 equal-width columns */
-            gap: 4px;                               /* small spacing between them */
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 4px;
             margin: 10px auto;
             width: 100%;
             box-sizing: border-box;
-            }
-
-        .note-buttons button {
-        display: block;
-        width: 100%;
-        margin: 0;               /* kill default button margins */
-        padding: 10px 0;         /* vertical only so width stays exact */
-        min-width: 0;            /* allow shrinking */
-        border: none;
-        border-radius: 10px;
-        font-size: 17px;
-        line-height: 1;          /* stop extra vertical growth */
-        color: #3d3b33;
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
-        }
-
-        /* --- Instrument + Tempo compact alignment --- */
-        label {
+          }
+      
+          .note-buttons button {
+            display: block;
+            width: 100%;
+            margin: 0;
+            padding: 10px 0;
+            min-width: 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            line-height: 1;
+            color: #3d3b33;
+            background: #e9f5ec;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+          }
+      
+          .note-buttons button:hover {
+            background: #d9f0e0;
+          }
+      
+          /* --- Instrument + Tempo compact alignment --- */
+          label {
             font-weight: 600;
             display: inline-block;
-        }
-
-        select,
-        input[type="range"] {
+          }
+      
+          select,
+          input[type="range"] {
             width: 58%;
             display: inline-block;
             vertical-align: middle;
             margin-left: 6px;
-        }
-
-        /* Tempo inline label value */
-        #tempoDisplay {
+          }
+      
+          /* Tempo inline label value */
+          #tempoDisplay {
             display: inline-block;
             font-weight: 600;
             margin-left: 6px;
             color: #3d3b33;
-        }
-
-        /* Reduce vertical spacing between instrument and tempo */
-        select {
+          }
+      
+          /* Reduce vertical spacing between instrument and tempo */
+          select {
             margin-bottom: 6px;
-        }
-
-        /* --- Sequence input --- */
-        #seq {
+          }
+      
+          /* --- Sequence input --- */
+          #seq {
             width: 90%;
             text-align: center;
             font-size: 18px;
             margin: 12px auto;
-        }
-
-        /* --- Action buttons --- */
-        button {
+          }
+      
+          /* --- Action buttons --- */
+          button {
             width: 28%;
             min-width: 90px;
             margin: 6px;
             padding: 10px 0;
             font-size: 16px;
             border-radius: 8px;
-        }
-
-        /* Save button matches Clear + Play total width */
-        #saveButton {
+          }
+      
+          /* Save button matches Clear + Play total width */
+          #saveButton {
             width: calc(56% + 12px);
-        }
-
-        /* --- Library scrollable area --- */
-        #library {
-            max-height: calc(100vh - 220px); /* keeps header visible */
+          }
+      
+          /* --- Library scrollable area --- */
+          #library {
+            max-height: calc(100vh - 220px);
             overflow-y: auto;
             padding-bottom: 10px;
-        }
-
-        #library h3 {
+          }
+      
+          #library h3 {
             position: sticky;
-            top: 45px; /* below tabs */
+            top: 45px;
             background: #fffdf9;
             padding: 6px 0;
             margin: 0;
             z-index: 15;
-        }
-
-        #library-list {
+          }
+      
+          #library-list {
             overflow-y: auto;
             max-height: calc(100vh - 260px);
-        }
-
-        #library-list .lib-card {
+          }
+      
+          #library-list .lib-card {
             text-align: center;
             padding: 10px;
             margin: 8px 0;
             border-radius: 10px;
             background: #fefcf8;
-        }
-
-        #library-list button {
+          }
+      
+          #library-list button {
             width: 30%;
             min-width: 90px;
             margin: 4px;
             font-size: 15px;
+          }
         }
-        }
-
-        /* --- Center alignment fix for all layouts --- */
-html, body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  width: 100%;
-}
-
-body {
-  display: flex;
-  justify-content: center;
-}
-
-.container {
-  margin: 0 auto;               /* true centering */
-  padding-left: 0;
-  padding-right: 0;
-  max-width: 800px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* ensure all grid/flex children stay inside container width */
-.container > * {
-  box-sizing: border-box;
-}
-
-/* mobile fine-tune */
-@media (max-width: 768px) {
-  body {
-    justify-content: center;
-    align-items: flex-start;
-  }
-
-  .container {
-    width: 95%;
-    margin: 0 auto;
-    padding: 16px 10px;
-  }
-
-  .note-buttons {
-    justify-items: center;
-  }
-
-  .note-buttons button {
-    margin: 0 auto;
-  }
-
-  #seq, select, input[type="range"], button {
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-  }
-}
-
-
-    </style>
+      </style>
+      
   </head>
 
   <body>
