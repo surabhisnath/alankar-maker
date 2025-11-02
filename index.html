@@ -319,20 +319,26 @@
         }
       
         // ---------------- Warmup ----------------
+        let warmedUp = false;
         function warmUpAudio() {
-          if (warmedUp) return;
-          warmedUp = true;
-          ac.resume().then(async () => {
+            if (warmedUp) return;
+            warmedUp = true;
+            ac.resume().then(async () => {
+            // load default instrument if not yet loaded
             if (!currentInstrumentPlayer) await loadInstrument();
+
+            // play a silent note to force-load buffers
             try {
-              currentInstrumentPlayer.play("C4", ac.currentTime, { gain: 0.0001, duration: 0.05 });
-            } catch (e) { console.warn("Warm-up skipped:", e); }
-          });
+                currentInstrumentPlayer.play("C4", ac.currentTime, { gain: 0.0001, duration: 0.05 });
+            } catch (e) {
+                console.warn("Audio warm-up skipped:", e);
+            }
+            });
         }
-        window.addEventListener("load", warmUpAudio);
+        // attach listener once
         window.addEventListener("click", warmUpAudio, { once: true });
         window.addEventListener("touchstart", warmUpAudio, { once: true });
-      
+        
         window.onload = () => {
           loadInstrument();
           renderLibrary();
