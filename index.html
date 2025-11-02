@@ -128,7 +128,7 @@
     </div>
     <footer>© 2025 Alankar Maker</footer>
 
-    <script>
+    <script type="module">
         // ---------------- Firebase Imports ----------------
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
         import {
@@ -337,6 +337,14 @@
           loadInstrument();
           renderLibrary();
         };
+    
+        window.append_note = append_note;
+        window.clear_sequence = clear_sequence;
+        window.play_sequence = play_sequence;
+        window.saveAlankar = saveAlankar;
+        window.openTab = openTab;
+        window.voteFirestore = voteFirestore;
+        window.playFromFirestore = playFromFirestore;
     </script>
       
   </body>
