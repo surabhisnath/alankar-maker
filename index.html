@@ -538,19 +538,19 @@
           });
         }
       
-        async function playFromFirestore(id) {
-          const snapshot = await getDocs(collection(db, "alankars"));
-          const item = snapshot.docs.find(d => d.id === id)?.data();
-          if (!item) return;
+        // async function playFromFirestore(id) {
+        //   const snapshot = await getDocs(collection(db, "alankars"));
+        //   const item = snapshot.docs.find(d => d.id === id)?.data();
+        //   if (!item) return;
       
-          document.getElementById('instrument').value = item.instrument;
-          document.getElementById('tempo').value = item.tempo;
-          document.getElementById('tempoDisplay').innerText = item.tempo;
-          document.getElementById('seq').value = item.sequence;
+        //   document.getElementById('instrument').value = item.instrument;
+        //   document.getElementById('tempo').value = item.tempo;
+        //   document.getElementById('tempoDisplay').innerText = item.tempo;
+        //   document.getElementById('seq').value = item.sequence;
       
-          await loadInstrument();
-          await play_sequence();
-        }
+        //   await loadInstrument();
+        //   await play_sequence();
+        // }
 
         async function playFromFirestore(id) {
             // Stop any ongoing playback first
