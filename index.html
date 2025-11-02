@@ -312,7 +312,7 @@
     <div class="container">
       <h2>Alankar Maker</h2>
       <div class="tabs">
-        <div class="tab active" onclick="openTab('create')">Create / Play</div>
+        <div class="tab active" onclick="openTab('create')">Create</div>
         <div class="tab" onclick="openTab('library')">Library</div>
       </div>
 
@@ -552,77 +552,145 @@
         //   await play_sequence();
         // }
 
+        // async function playFromFirestore(id) {
+        // // Stop any ongoing playback first
+        // if (currentPlaybackAbort) currentPlaybackAbort.abort();
+
+        // // Remove highlight from all previous cards
+        // document.querySelectorAll('.lib-card').forEach(el => el.classList.remove('playing'));
+
+        // const card = document.getElementById(`lib-item-${id}`);
+        // if (card) card.classList.add('playing');
+
+        // // Fetch document data
+        // const docRef = doc(db, "alankars", id);
+        // const snapshot = await getDoc(docRef);
+        // if (!snapshot.exists()) return;
+
+        // const item = snapshot.data();
+        // document.getElementById('instrument').value = item.instrument;
+        // document.getElementById('tempo').value = item.tempo;
+        // document.getElementById('tempoDisplay').innerText = item.tempo;
+        // document.getElementById('seq').value = item.sequence;
+
+        // await loadInstrument();
+
+        // // Prepare abort controller for playback
+        // const controller = new AbortController();
+        // currentPlaybackAbort = controller;
+
+        // const raw = item.sequence.trim();
+        // const base = parseSequence(raw);
+        // const expanded = [];
+        // for (let j = 0; j < 4; j++) {
+        //     base.forEach(p => expanded.push({
+        //     note: (p.note === '_' ? '_' : String(Number(p.note) + j)),
+        //     mult: p.mult
+        //     }));
+        // }
+
+        // const sleep = ms => new Promise(r => {
+        //     const id = setTimeout(r, ms);
+        //     controller.signal.addEventListener('abort', () => clearTimeout(id), { once: true });
+        // });
+
+        // for (let j = 0; j < expanded.length; j++) {
+        //     if (controller.signal.aborted) {
+        //     if (card) card.classList.remove('playing');
+        //     return;
+        //     }
+
+        //     const stepMs = computeStepMs();
+        //     const { note, mult } = expanded[j];
+
+        //     if (note === '_') {
+        //     await sleep(stepMs * mult);
+        //     continue;
+        //     }
+
+        //     const midi = NOTE_MAP[note];
+        //     if (!midi) {
+        //     await sleep(stepMs * mult);
+        //     continue;
+        //     }
+
+        //     const durSec = (stepMs * mult) / 1000 * 0.9;
+        //     currentInstrumentPlayer.play(midi, ac.currentTime, { duration: durSec });
+        //     await sleep(stepMs * mult);
+        // }
+
+        // // 🔹 Playback finished — remove highlight
+        // if (card) card.classList.remove('playing');
+        // currentPlaybackAbort = null;
+        // }
+
         async function playFromFirestore(id) {
-        // Stop any ongoing playback first
-        if (currentPlaybackAbort) currentPlaybackAbort.abort();
+            const snapshot = await getDocs(collection(db, "alankars"));
+            const itemDoc = snapshot.docs.find(d => d.id === id);
+            if (!itemDoc) return;
+            const item = itemDoc.data();
 
-        // Remove highlight from all previous cards
-        document.querySelectorAll('.lib-card').forEach(el => el.classList.remove('playing'));
+            // Highlight active card
+            const card = document.getElementById(`lib-item-${id}`);
+            document.querySelectorAll(".lib-card").forEach(el => el.classList.remove("playing"));
+            card.classList.add("playing");
 
-        const card = document.getElementById(`lib-item-${id}`);
-        if (card) card.classList.add('playing');
+            // Load chosen instrument (but don’t update Create/Play UI)
+            const tempInstrumentPlayer = await Soundfont.instrument(ac, item.instrument);
 
-        // Fetch document data
-        const docRef = doc(db, "alankars", id);
-        const snapshot = await getDoc(docRef);
-        if (!snapshot.exists()) return;
+            // Use a temporary controller to stop playback cleanly
+            if (currentPlaybackAbort) currentPlaybackAbort.abort();
+            const controller = new AbortController();
+            currentPlaybackAbort = controller;
 
-        const item = snapshot.data();
-        document.getElementById('instrument').value = item.instrument;
-        document.getElementById('tempo').value = item.tempo;
-        document.getElementById('tempoDisplay').innerText = item.tempo;
-        document.getElementById('seq').value = item.sequence;
-
-        await loadInstrument();
-
-        // Prepare abort controller for playback
-        const controller = new AbortController();
-        currentPlaybackAbort = controller;
-
-        const raw = item.sequence.trim();
-        const base = parseSequence(raw);
-        const expanded = [];
-        for (let j = 0; j < 4; j++) {
-            base.forEach(p => expanded.push({
-            note: (p.note === '_' ? '_' : String(Number(p.note) + j)),
-            mult: p.mult
-            }));
-        }
-
-        const sleep = ms => new Promise(r => {
-            const id = setTimeout(r, ms);
-            controller.signal.addEventListener('abort', () => clearTimeout(id), { once: true });
-        });
-
-        for (let j = 0; j < expanded.length; j++) {
-            if (controller.signal.aborted) {
-            if (card) card.classList.remove('playing');
-            return;
+            // Parse sequence and expand octaves
+            const base = parseSequence(item.sequence);
+            const expanded = [];
+            for (let j = 0; j < 4; j++) {
+                base.forEach(p =>
+                expanded.push({
+                    note: p.note === "_" ? "_" : String(Number(p.note) + j),
+                    mult: p.mult,
+                })
+                );
             }
 
+            // Sleep helper
+            const sleep = (ms) =>
+                new Promise((r) => {
+                const id = setTimeout(r, ms);
+                controller.signal.addEventListener("abort", () => clearTimeout(id), { once: true });
+                });
+
+            // Tempo compute (uses same function but with custom tempo)
+            const oldTempo = document.getElementById("tempo").value; // save user tempo
+            document.getElementById("tempo").value = item.tempo;
             const stepMs = computeStepMs();
-            const { note, mult } = expanded[j];
+            document.getElementById("tempo").value = oldTempo; // restore user tempo
 
-            if (note === '_') {
-            await sleep(stepMs * mult);
-            continue;
+            // Play sequence
+            for (const { note, mult } of expanded) {
+                if (controller.signal.aborted) break;
+
+                if (note === "_") {
+                await sleep(stepMs * mult);
+                continue;
+                }
+
+                const midi = NOTE_MAP[note];
+                if (!midi) {
+                await sleep(stepMs * mult);
+                continue;
+                }
+
+                const durSec = (stepMs * mult) / 1000 * 0.9;
+                tempInstrumentPlayer.play(midi, ac.currentTime, { duration: durSec });
+                await sleep(stepMs * mult);
             }
 
-            const midi = NOTE_MAP[note];
-            if (!midi) {
-            await sleep(stepMs * mult);
-            continue;
+            card.classList.remove("playing");
+            currentPlaybackAbort = null;
             }
-
-            const durSec = (stepMs * mult) / 1000 * 0.9;
-            currentInstrumentPlayer.play(midi, ac.currentTime, { duration: durSec });
-            await sleep(stepMs * mult);
-        }
-
-        // 🔹 Playback finished — remove highlight
-        if (card) card.classList.remove('playing');
-        currentPlaybackAbort = null;
-        }
 
             
         async function voteFirestore(id) {
