@@ -380,7 +380,6 @@
         document.getElementById('seq').value = item.sequence;
 
         await loadInstrument();
-        await ensureAudioReady();
 
         // Prepare abort controller for playback
         const controller = new AbortController();
