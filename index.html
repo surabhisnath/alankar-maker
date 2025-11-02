@@ -119,14 +119,20 @@
             box-sizing: border-box;
             }
 
-            .note-buttons input {
-            width: 100%;
-            padding: 10px 0;
-            font-size: 17px;
-            text-align: center;
-            border-radius: 8px;
-            box-sizing: border-box;
-            min-width: 0;
+        .note-buttons button {
+        display: block;
+        width: 100%;
+        margin: 0;               /* kill default button margins */
+        padding: 10px 0;         /* vertical only so width stays exact */
+        min-width: 0;            /* allow shrinking */
+        border: none;
+        border-radius: 10px;
+        font-size: 17px;
+        line-height: 1;          /* stop extra vertical growth */
+        background: #e9f5ec;     /* pastel */
+        color: #3d3b33;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
         }
 
         /* --- Instrument + Tempo compact alignment --- */
