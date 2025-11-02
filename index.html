@@ -65,26 +65,36 @@
       }
       /* -------- Responsive adjustments -------- */
       /* --- Improved Mobile Layout (with aligned tabs and musical flow) --- */
+        /* --- Final Polished Mobile Layout --- */
         @media (max-width: 768px) {
         body {
             font-size: 16px;
             background-size: cover;
+            overflow-x: hidden;
         }
 
         .container {
             width: 95%;
-            padding: 20px 15px;
+            padding: 16px;
             margin: 20px auto;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
         }
 
-        /* --- Tabs remain side by side --- */
+        /* --- Keep Tabs fixed at top --- */
         .tabs {
             display: flex;
             justify-content: space-evenly;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
+            position: sticky;
+            top: 0;
+            background: #fffdf9;
+            z-index: 20;
+            border-bottom: 1px solid #f0e9e2;
         }
+
         .tab {
             flex: 1;
             text-align: center;
@@ -93,45 +103,53 @@
             border-bottom: 3px solid transparent;
             font-weight: 600;
         }
+
         .tab.active {
             border-color: #c58c85;
             background: #fdf6f3;
         }
 
-        /* --- Note buttons: single row of 7 notes --- */
+        /* --- Notes (1–7) --- */
         .note-buttons {
             display: flex;
             justify-content: space-between;
-            flex-wrap: nowrap;
             margin: 10px auto;
             width: 100%;
         }
+
         .note-buttons input {
             flex: 1;
-            margin: 3px;
-            font-size: 20px;
-            padding: 12px 0;
+            margin: 2px;
+            font-size: 18px;
+            padding: 10px 0;
+            min-width: 0; /* prevent overflow */
         }
 
-        /* --- Instrument + Tempo controls --- */
+        /* --- Instrument + Tempo compact alignment --- */
         label {
             font-weight: 600;
+            display: inline-block;
         }
 
         select,
         input[type="range"] {
-            width: 60%;           /* narrower for compact look */
+            width: 58%;
             display: inline-block;
             vertical-align: middle;
-            margin-left: 10px;
+            margin-left: 6px;
         }
 
-        /* Tempo display next to label */
+        /* Tempo inline label value */
         #tempoDisplay {
             display: inline-block;
             font-weight: 600;
-            margin-left: 8px;
+            margin-left: 6px;
             color: #3d3b33;
+        }
+
+        /* Reduce vertical spacing between instrument and tempo */
+        select {
+            margin-bottom: 6px;
         }
 
         /* --- Sequence input --- */
@@ -139,34 +157,61 @@
             width: 90%;
             text-align: center;
             font-size: 18px;
-            margin-top: 10px;
-            margin-bottom: 15px;
+            margin: 12px auto;
         }
 
-        /* --- Action buttons (Clear / Play / Save) --- */
+        /* --- Action buttons --- */
         button {
-            width: 30%;
-            min-width: 100px;
+            width: 28%;
+            min-width: 90px;
             margin: 6px;
             padding: 10px 0;
             font-size: 16px;
             border-radius: 8px;
         }
 
-        /* --- Library cards --- */
+        /* Save button matches Clear + Play total width */
+        #saveButton {
+            width: calc(56% + 12px);
+        }
+
+        /* --- Library scrollable area --- */
+        #library {
+            max-height: calc(100vh - 220px); /* keeps header visible */
+            overflow-y: auto;
+            padding-bottom: 10px;
+        }
+
+        #library h3 {
+            position: sticky;
+            top: 45px; /* below tabs */
+            background: #fffdf9;
+            padding: 6px 0;
+            margin: 0;
+            z-index: 15;
+        }
+
+        #library-list {
+            overflow-y: auto;
+            max-height: calc(100vh - 260px);
+        }
+
         #library-list .lib-card {
             text-align: center;
-            padding: 12px;
-            margin: 10px 0;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 10px;
+            background: #fefcf8;
         }
 
         #library-list button {
             width: 30%;
-            min-width: 100px;
-            margin: 5px;
+            min-width: 90px;
+            margin: 4px;
             font-size: 15px;
         }
         }
+
 
     </style>
   </head>
@@ -217,7 +262,6 @@
 
       <!-- Library Tab -->
       <div id="library" class="tab-content">
-        <h3>Alankar Library</h3>
         <div id="library-list"></div>
       </div>
     </div>
