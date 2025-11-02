@@ -96,13 +96,12 @@
 
         <br>
         <label><b>Instrument:</b></label>
-        <select id="instrument" onchange="loadInstrument()">
-          <option value="acoustic_grand_piano">Piano</option>
-          <option value="sitar">Sitar</option>
-          <option value="drawbar_organ">Harmonium</option>
-          <option value="acoustic_guitar_nylon">Guitar</option>
-          <option value="flute">Flute</option>
-          <option value="violin">Violin</option>
+        <select id="instrument">
+            <option value="piano">Piano</option>
+            <option value="organ">Harmonium</option>
+            <option value="guitar">Guitar</option>
+            <option value="flute">Flute</option>
+            <option value="violin">Violin</option>
         </select>
 
         <br><br>
@@ -170,6 +169,7 @@
           else if (instName === "guitar") instName = "acoustic_guitar_nylon";
           currentInstrumentPlayer = await Soundfont.instrument(ac, instName);
         }
+        document.getElementById("instrument").addEventListener("change", loadInstrument);
       
         function append_note(v) {
           document.getElementById('seq').value += v.trim();
