@@ -270,13 +270,13 @@
         <!-- <input type="text" id="seq" placeholder='Use _ for pause, " for sustain'> -->
         <input 
         type="text" 
-        id="seq" 
-        inputmode="numeric" 
-        pattern='[0-9_\" ]*'
+        id="seq"
+        inputmode="text"
+        pattern='[1-7_\" ]*'
         placeholder='Use _ for pause, " for sustain'
-        autocorrect="off" 
-        autocomplete="off" 
-        autocapitalize="none">
+        autocorrect="off"
+        autocapitalize="none"
+        autocomplete="off">
         <button onclick="clear_sequence()">Clear</button>
         <button onclick="play_sequence()">Play</button>
 
