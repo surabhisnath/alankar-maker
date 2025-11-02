@@ -35,6 +35,17 @@
         color: #333;
         margin: 0;
       }
+      input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 200px;
+        height: 6px;
+        border-radius: 5px;
+        background: linear-gradient(to right, #c58c85, #e3c6be);
+        outline: none;
+        margin: 0px;
+        padding: 0;
+      }
       .container {
         max-width: 800px; margin: 60px auto;
         background: rgba(255, 253, 249, 0.9);
@@ -71,6 +82,44 @@
         box-shadow:0 0 8px rgba(100,180,120,0.4);
         transition:all 0.3s ease;
       }
+      /* -------- Responsive adjustments -------- */
+        @media (max-width: 768px) {
+        body {
+            font-size: 15px;
+        }
+        .container {
+            width: 90%;
+            padding: 25px 20px;
+            margin: 30px auto;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+        }
+        .note-buttons input, .note-buttons button {
+            width: 20%;
+            margin: 4px 2px;
+            font-size: 16px;
+        }
+        #seq {
+            width: 90%;
+            font-size: 15px;
+        }
+        .tabs {
+            flex-direction: column;
+        }
+        .tab {
+            padding: 10px;
+            font-size: 16px;
+            border-bottom: none;
+            border-left: 3px solid transparent;
+        }
+        .tab.active {
+            border-color: #c58c85;
+            background: #fdf6f3;
+        }
+        select, button, input[type="range"] {
+            width: 90%;
+            margin: 8px 0;
+        }
+        }
     </style>
   </head>
 
