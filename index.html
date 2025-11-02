@@ -629,10 +629,10 @@
             if (card) card.classList.remove('playing');
             currentPlaybackAbort = null;
 
-            document.getElementById('instrument').value = tempint;
-            document.getElementById('tempo').value = temptemp;
-            document.getElementById('tempoDisplay').innerText = temptempdisp;
-            document.getElementById('seq').value = tempseq;
+            document.getElementById('instrument').value = "piano";
+            document.getElementById('tempo').value = 3;
+            document.getElementById('tempoDisplay').innerText = "3";
+            document.getElementById('seq').value = '';
         }
             
         async function voteFirestore(id) {
