@@ -344,20 +344,94 @@
           });
         }
       
+        // async function playFromFirestore(id) {
+        //   const snapshot = await getDocs(collection(db, "alankars"));
+        //   const item = snapshot.docs.find(d => d.id === id)?.data();
+        //   if (!item) return;
+      
+        //   document.getElementById('instrument').value = item.instrument;
+        //   document.getElementById('tempo').value = item.tempo;
+        //   document.getElementById('tempoDisplay').innerText = item.tempo;
+        //   document.getElementById('seq').value = item.sequence;
+      
+        //   await loadInstrument();
+        //   await play_sequence();
+        // }
+
         async function playFromFirestore(id) {
-          const snapshot = await getDocs(collection(db, "alankars"));
-          const item = snapshot.docs.find(d => d.id === id)?.data();
-          if (!item) return;
-      
-          document.getElementById('instrument').value = item.instrument;
-          document.getElementById('tempo').value = item.tempo;
-          document.getElementById('tempoDisplay').innerText = item.tempo;
-          document.getElementById('seq').value = item.sequence;
-      
-          await loadInstrument();
-          await play_sequence();
+        // Stop any ongoing playback first
+        if (currentPlaybackAbort) currentPlaybackAbort.abort();
+
+        // Remove highlight from all previous cards
+        document.querySelectorAll('.lib-card').forEach(el => el.classList.remove('playing'));
+
+        const card = document.getElementById(`lib-item-${id}`);
+        if (card) card.classList.add('playing');
+
+        // Fetch document data
+        const docRef = doc(db, "alankars", id);
+        const snapshot = await getDoc(docRef);
+        if (!snapshot.exists()) return;
+
+        const item = snapshot.data();
+        document.getElementById('instrument').value = item.instrument;
+        document.getElementById('tempo').value = item.tempo;
+        document.getElementById('tempoDisplay').innerText = item.tempo;
+        document.getElementById('seq').value = item.sequence;
+
+        await loadInstrument();
+        await ensureAudioReady();
+
+        // Prepare abort controller for playback
+        const controller = new AbortController();
+        currentPlaybackAbort = controller;
+
+        const raw = item.sequence.trim();
+        const base = parseSequence(raw);
+        const expanded = [];
+        for (let j = 0; j < 4; j++) {
+            base.forEach(p => expanded.push({
+            note: (p.note === '_' ? '_' : String(Number(p.note) + j)),
+            mult: p.mult
+            }));
         }
-      
+
+        const sleep = ms => new Promise(r => {
+            const id = setTimeout(r, ms);
+            controller.signal.addEventListener('abort', () => clearTimeout(id), { once: true });
+        });
+
+        for (let j = 0; j < expanded.length; j++) {
+            if (controller.signal.aborted) {
+            if (card) card.classList.remove('playing');
+            return;
+            }
+
+            const stepMs = computeStepMs();
+            const { note, mult } = expanded[j];
+
+            if (note === '_') {
+            await sleep(stepMs * mult);
+            continue;
+            }
+
+            const midi = NOTE_MAP[note];
+            if (!midi) {
+            await sleep(stepMs * mult);
+            continue;
+            }
+
+            const durSec = (stepMs * mult) / 1000 * 0.9;
+            currentInstrumentPlayer.play(midi, ac.currentTime, { duration: durSec });
+            await sleep(stepMs * mult);
+        }
+
+        // 🔹 Playback finished — remove highlight
+        if (card) card.classList.remove('playing');
+        currentPlaybackAbort = null;
+        }
+
+            
         async function voteFirestore(id) {
           const docRef = doc(db, "alankars", id);
           await updateDoc(docRef, { votes: increment(1) });
