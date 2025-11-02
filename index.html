@@ -6,6 +6,7 @@
 
     <!-- SoundFont Player -->
     <script src="https://unpkg.com/soundfont-player@0.12.0/dist/soundfont-player.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
       body {
@@ -63,43 +64,54 @@
         transition:all 0.3s ease;
       }
       /* -------- Responsive adjustments -------- */
-        @media (max-width: 768px) {
+      @media (max-width: 768px) {
         body {
-            font-size: 15px;
+            font-size: 16px;
+            background-size: cover;
         }
         .container {
             width: 90%;
-            padding: 25px 20px;
-            margin: 30px auto;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
-        .note-buttons input, .note-buttons button {
-            width: 20%;
-            margin: 4px 2px;
-            font-size: 16px;
-        }
-        #seq {
-            width: 90%;
-            font-size: 15px;
+        h2 {
+            font-size: 22px;
         }
         .tabs {
             flex-direction: column;
+            align-items: center;
         }
         .tab {
-            padding: 10px;
-            font-size: 16px;
+            width: 100%;
+            border-left: 4px solid transparent;
             border-bottom: none;
-            border-left: 3px solid transparent;
+            font-size: 18px;
         }
-        .tab.active {
-            border-color: #c58c85;
-            background: #fdf6f3;
+        .note-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-        select, button, input[type="range"] {
-            width: 90%;
-            margin: 8px 0;
+        .note-buttons input, .note-buttons button {
+            width: 28%;
+            font-size: 20px;
+            margin: 5px;
         }
+        #seq {
+            width: 95%;
+            font-size: 18px;
         }
+        select, input[type="range"], button {
+            width: 95%;
+            font-size: 18px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+    }
     </style>
   </head>
 
