@@ -1,661 +1,653 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Alankar Maker</title>
+    <head>
+        <meta charset="utf-8" />
+        <title>Alankar Maker</title>
+        <link rel="icon" type="image/png" href="https://freesvg.org/img/rickvanderzwet_Treble_clef_1.png">
+        <link rel="apple-touch-icon" href="https://freesvg.org/img/rickvanderzwet_Treble_clef_1.png">
+        <script src="https://unpkg.com/soundfont-player@0.12.0/dist/soundfont-player.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {
+                font-family: "Inter", sans-serif;
+                background: url("https://images.pexels.com/photos/7135058/pexels-photo-7135058.jpeg?auto=compress&cs=tinysrgb&w=1600") no-repeat center center fixed;
+                background-size: cover;
+                color: #333;
+                margin: 0;
+            }
 
-    <!-- SoundFont Player -->
-    <script src="https://unpkg.com/soundfont-player@0.12.0/dist/soundfont-player.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            html, body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
+                touch-action: pan-y; /* vertical scroll only */
+            }
 
-    <style>
-  body {
-    font-family: "Inter", sans-serif;
-    background: url("https://images.pexels.com/photos/7135058/pexels-photo-7135058.jpeg?auto=compress&cs=tinysrgb&w=1600") no-repeat center center fixed;
-    background-size: cover;
-    color: #333;
-    margin: 0;
-  }
+            input[type="range"] {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 200px;
+                height: 6px;
+                border-radius: 5px;
+                background: linear-gradient(to right, #c58c85, #e3c6be);
+                outline: none;
+                margin: 0px;
+                padding: 0;
+            }
 
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-    touch-action: pan-y; /* vertical scroll only */
-  }
+            .container {
+                max-width: 800px;
+                margin: 60px auto;
+                background: rgba(255, 253, 249, 0.9);
+                border-radius: 18px;
+                box-shadow: 0 8px 22px rgba(0,0,0,.05);
+                padding: 40px 50px;
+                box-sizing: border-box;
+            }
 
-  input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 200px;
-    height: 6px;
-    border-radius: 5px;
-    background: linear-gradient(to right, #c58c85, #e3c6be);
-    outline: none;
-    margin: 0px;
-    padding: 0;
-  }
+            h2 {
+                text-align: center;
+                margin-bottom: 25px;
+                color: #3d3b33;
+            }
 
-  .container {
-    max-width: 800px;
-    margin: 60px auto;
-    background: rgba(255, 253, 249, 0.9);
-    border-radius: 18px;
-    box-shadow: 0 8px 22px rgba(0,0,0,.05);
-    padding: 40px 50px;
-    box-sizing: border-box;
-  }
+            .tabs {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 25px;
+            }
 
-  h2 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #3d3b33;
-  }
+            .tab {
+                flex: 1;
+                text-align: center;
+                padding: 12px;
+                cursor: pointer;
+                border-bottom: 3px solid transparent;
+                font-weight: 600;
+                color: #666;
+                transition: .2s;
+            }
 
-  .tabs {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 25px;
-  }
+            .tab.active {
+                border-color: #c58c85;
+                color: #3d3b33;
+                background: #fdf6f3;
+            }
 
-  .tab {
-    flex: 1;
-    text-align: center;
-    padding: 12px;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    font-weight: 600;
-    color: #666;
-    transition: .2s;
-  }
+            .tab:hover {
+                background: #f8f3f0;
+            }
 
-  .tab.active {
-    border-color: #c58c85;
-    color: #3d3b33;
-    background: #fdf6f3;
-  }
+            .tab-content {
+                display: none;
+            }
 
-  .tab:hover {
-    background: #f8f3f0;
-  }
+            .tab-content.active {
+                display: block;
+            }
 
-  .tab-content {
-    display: none;
-  }
+            .centered {
+                text-align: center;
+            }
 
-  .tab-content.active {
-    display: block;
-  }
+            select, input[type="text"], button, input[type="range"] {
+                padding: 10px 14px;
+                border-radius: 8px;
+                border: 1px solid #d9c9b3;
+                font-size: 15px;
+                margin: 5px;
+                background: #fdfcf8;
+                color: #3d3b33;
+            }
 
-  .centered {
-    text-align: center;
-  }
+            button {
+                background: #c8a99e;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                transition: .3s;
+            }
 
-  select, input[type="text"], button, input[type="range"] {
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: 1px solid #d9c9b3;
-    font-size: 15px;
-    margin: 5px;
-    background: #fdfcf8;
-    color: #3d3b33;
-  }
+            button:hover {
+                background: #b89286;
+            }
 
-  button {
-    background: #c8a99e;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    transition: .3s;
-  }
+            #seq {
+                width: 60%;
+            }
 
-  button:hover {
-    background: #b89286;
-  }
+            #library div {
+                border: 1px solid #e8e1d9;
+                background: #fefcf8;
+                padding: 12px;
+                margin: 8px auto;
+                border-radius: 10px;
+            }
 
-  #seq {
-    width: 60%;
-  }
+            #library button {
+                background: #c58c85;
+                font-size: 14px;
+                margin: 4px;
+                padding: 6px 10px;
+            }
 
-  #library div {
-    border: 1px solid #e8e1d9;
-    background: #fefcf8;
-    padding: 12px;
-    margin: 8px auto;
-    border-radius: 10px;
-  }
+            #library button:hover {
+                background: #b97a74;
+            }
 
-  #library button {
-    background: #c58c85;
-    font-size: 14px;
-    margin: 4px;
-    padding: 6px 10px;
-  }
+            footer {
+                display: block;
+                width: 100%;
+                text-align: center;
+                color: #7a756d;
+                font-size: 14px;
+                margin: 20px 0 30px;
+            }
 
-  #library button:hover {
-    background: #b97a74;
-  }
+            .lib-card.playing {
+                border-color: #a6d8a8;
+                background: #e8f9e9;
+                box-shadow: 0 0 8px rgba(100,180,120,0.4);
+                transition: all 0.3s ease;
+            }
 
-  footer {
-    display: block;
-    width: 100%;
-    text-align: center;
-    color: #7a756d;
-    font-size: 14px;
-    margin: 20px 0 30px;
-  }
+            /* -------- Responsive adjustments -------- */
+            @media (max-width: 768px) 
+            {
+                body {
+                    font-size: 16px;
+                    background-size: cover;
+                }
 
-  .lib-card.playing {
-    border-color: #a6d8a8;
-    background: #e8f9e9;
-    box-shadow: 0 0 8px rgba(100,180,120,0.4);
-    transition: all 0.3s ease;
-  }
+                .container {
+                    width: 95%;
+                    padding: 16px;
+                    margin: 20px auto;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                    position: relative;
+                    overflow: hidden;
+                }
 
-  /* -------- Responsive adjustments -------- */
-  @media (max-width: 768px) {
-    body {
-      font-size: 16px;
-      background-size: cover;
-    }
+                /* --- Keep Tabs fixed at top --- */
+                .tabs {
+                    display: flex;
+                    justify-content: space-evenly;
+                    margin-bottom: 12px;
+                    position: sticky;
+                    top: 0;
+                    background: #fffdf9;
+                    z-index: 20;
+                    border-bottom: 1px solid #f0e9e2;
+                }
 
-    .container {
-      width: 95%;
-      padding: 16px;
-      margin: 20px auto;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      position: relative;
-      overflow: hidden;
-    }
+                .tab {
+                    flex: 1;
+                    text-align: center;
+                    padding: 10px;
+                    font-size: 16px;
+                    border-bottom: 3px solid transparent;
+                    font-weight: 600;
+                }
 
-    /* --- Keep Tabs fixed at top --- */
-    .tabs {
-      display: flex;
-      justify-content: space-evenly;
-      margin-bottom: 12px;
-      position: sticky;
-      top: 0;
-      background: #fffdf9;
-      z-index: 20;
-      border-bottom: 1px solid #f0e9e2;
-    }
+                .tab.active {
+                    border-color: #c58c85;
+                    background: #fdf6f3;
+                }
 
-    .tab {
-      flex: 1;
-      text-align: center;
-      padding: 10px;
-      font-size: 16px;
-      border-bottom: 3px solid transparent;
-      font-weight: 600;
-    }
+                /* --- Notes (1–7) --- */
+                .note-buttons {
+                    display: grid;
+                    grid-template-columns: repeat(7, minmax(0, 1fr));
+                    gap: 4px;
+                    margin: 10px auto;
+                    width: 100%;
+                    box-sizing: border-box;
+                }
 
-    .tab.active {
-      border-color: #c58c85;
-      background: #fdf6f3;
-    }
+                .note-buttons button {
+                    display: block;
+                    width: 100%;
+                    margin: 0;
+                    padding: 10px 0;
+                    min-width: 0;
+                    border: none;
+                    border-radius: 10px;
+                    font-size: 17px;
+                    line-height: 1;
+                    color: #3d3b33;
+                    -webkit-tap-highlight-color: transparent;
+                    touch-action: manipulation;
+                }
 
-    /* --- Notes (1–7) --- */
-    .note-buttons {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 4px;
-      margin: 10px auto;
-      width: 100%;
-      box-sizing: border-box;
-    }
+                .note-buttons button:hover {
+                    background: #d9f0e0;
+                }
 
-    .note-buttons button {
-      display: block;
-      width: 100%;
-      margin: 0;
-      padding: 10px 0;
-      min-width: 0;
-      border: none;
-      border-radius: 10px;
-      font-size: 17px;
-      line-height: 1;
-      color: #3d3b33;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-    }
+                /* --- Instrument + Tempo compact alignment --- */
+                label {
+                    font-weight: 600;
+                    display: inline-block;
+                }
 
-    .note-buttons button:hover {
-      background: #d9f0e0;
-    }
+                select, input[type="range"] {
+                    width: 58%;
+                    display: inline-block;
+                    vertical-align: middle;
+                    margin-left: 6px;
+                }
 
-    /* --- Instrument + Tempo compact alignment --- */
-    label {
-      font-weight: 600;
-      display: inline-block;
-    }
+                /* Tempo inline label value */
+                #tempoDisplay {
+                    display: inline-block;
+                    font-weight: 600;
+                    margin-left: 6px;
+                    color: #3d3b33;
+                }
 
-    select,
-    input[type="range"] {
-      width: 58%;
-      display: inline-block;
-      vertical-align: middle;
-      margin-left: 6px;
-    }
+                /* Reduce vertical spacing between instrument and tempo */
+                select {
+                    margin-bottom: 6px;
+                }
 
-    /* Tempo inline label value */
-    #tempoDisplay {
-      display: inline-block;
-      font-weight: 600;
-      margin-left: 6px;
-      color: #3d3b33;
-    }
+                /* --- Sequence input --- */
+                #seq {
+                    width: 90%;
+                    text-align: center;
+                    font-size: 18px;
+                    margin: 12px auto;
+                }
 
-    /* Reduce vertical spacing between instrument and tempo */
-    select {
-      margin-bottom: 6px;
-    }
+                /* --- Action buttons --- */
+                button {
+                    width: 28%;
+                    min-width: 90px;
+                    margin: 6px;
+                    padding: 10px 0;
+                    font-size: 16px;
+                    border-radius: 8px;
+                }
 
-    /* --- Sequence input --- */
-    #seq {
-      width: 90%;
-      text-align: center;
-      font-size: 18px;
-      margin: 12px auto;
-    }
+                /* Save button matches Clear + Play total width */
+                #saveButton {
+                    width: calc(56% + 12px);
+                }
 
-    /* --- Action buttons --- */
-    button {
-      width: 28%;
-      min-width: 90px;
-      margin: 6px;
-      padding: 10px 0;
-      font-size: 16px;
-      border-radius: 8px;
-    }
+                /* --- Library scrollable area --- */
+                #library {
+                    max-height: calc(100vh - 220px);
+                    overflow-y: hidden;
+                    padding-bottom: 10px;
+                }
 
-    /* Save button matches Clear + Play total width */
-    #saveButton {
-      width: calc(56% + 12px);
-    }
+                #library-list {
+                    overflow-y: scroll;
+                    max-height: calc(100vh - 400px);
+                }
 
-    /* --- Library scrollable area --- */
-    #library {
-      max-height: calc(100vh - 220px);
-      overflow-y: hidden;
-      padding-bottom: 10px;
-    }
+                #library-list .lib-card {
+                    text-align: center;
+                    padding: 10px;
+                    margin: 8px 0;
+                    border-radius: 10px;
+                    background: #fefcf8;
+                }
 
-    #library-list {
-      overflow-y: scroll;
-      max-height: calc(100vh - 400px);
-    }
+                #library-list button {
+                    width: 30%;
+                    min-width: 90px;
+                    margin: 4px;
+                    font-size: 15px;
+                }
+            }
+        </style>
+    </head>
 
-    #library-list .lib-card {
-      text-align: center;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 10px;
-      background: #fefcf8;
-    }
+    <body>
+        <!-- Audio Unlock Overlay -->
+        <div id="audioUnlock" style="position:fixed; inset:0; background:rgba(255,253,249,0.96); display:flex; align-items:center; justify-content:center; font-size:20px; color:#3d3b33; z-index:9999;"> 🔈 Tap anywhere to enable sound</div>
 
-    #library-list button {
-      width: 30%;
-      min-width: 90px;
-      margin: 4px;
-      font-size: 15px;
-    }
-  }
-</style>
+        <div class="container">
+            <h2>Alankar Maker</h2>
 
-  </head>
+            <div class="tabs">
+                <div class="tab active" onclick="openTab('create')">Create</div>
+                <div class="tab" onclick="openTab('library')">Library</div>
+            </div>
 
-  <body>
-    <!-- Audio Unlock Overlay -->
-    <div id="audioUnlock" style="
-      position:fixed; inset:0;
-      background:rgba(255,253,249,0.96);
-      display:flex; align-items:center; justify-content:center;
-      font-size:20px; color:#3d3b33; z-index:9999;">
-      🔈 Tap anywhere to enable sound
-    </div>
+            <!-- Create Tab -->
+            <div id="create" class="tab-content active centered">
+                <div class="note-buttons">
+                    <button value="1">1</button>
+                    <button value="2">2</button>
+                    <button value="3">3</button>
+                    <button value="4">4</button>
+                    <button value="5">5</button>
+                    <button value="6">6</button>
+                    <button value="7">7</button>
+                </div>
 
-    <div class="container">
-      <h2>Alankar Maker</h2>
-      <div class="tabs">
-        <div class="tab active" onclick="openTab('create')">Create</div>
-        <div class="tab" onclick="openTab('library')">Library</div>
-      </div>
+                <br>
+                <label><b>Instrument:</b></label>
+                <select id="instrument">
+                    <option value="piano">Piano</option>
+                    <option value="organ">Organ</option>
+                    <option value="guitar">Guitar</option>
+                    <option value="flute">Flute</option>
+                    <option value="violin">Violin</option>
+                </select>
 
-      <!-- Create Tab -->
-      <div id="create" class="tab-content active centered">
-        <div class="note-buttons">
-          <button value="1">1</button>
-          <button value="2">2</button>
-          <button value="3">3</button>
-          <button value="4">4</button>
-          <button value="5">5</button>
-          <button value="6">6</button>
-          <button value="7">7</button>
+                <br><br>
+                <label><b>Tempo:</b> <span id="tempoDisplay">3</span></label>
+                <input type="range" id="tempo" min="1" max="5" value="3" step="1"
+                oninput="tempoDisplay.innerText=this.value">
+
+                <br><br>
+                <input
+                type="text"
+                id="seq"
+                inputmode="text"
+                pattern='[1-7_" ]*'
+                placeholder='Use _ for pause, " for sustain'
+                autocorrect="off"
+                autocapitalize="none"
+                autocomplete="off">
+                <button onclick="clear_sequence()">Clear</button>
+                <button onclick="play_sequence()">Play</button>
+
+                <br><br>
+                <button id="saveButton" onclick="saveAlankar()">💾 Save to Public Library</button>
+            </div>
+
+            <!-- Library Tab -->
+            <div id="library" class="tab-content">
+                <div id="library-list"></div>
+            </div>
         </div>
 
-        <br>
-        <label><b>Instrument:</b></label>
-        <select id="instrument">
-          <option value="piano">Piano</option>
-          <option value="organ">Organ</option>
-          <option value="guitar">Guitar</option>
-          <option value="flute">Flute</option>
-          <option value="violin">Violin</option>
-        </select>
+        <footer>© 2025 Alankar Maker -- SSN</footer>
 
-        <br><br>
-        <label><b>Tempo:</b> <span id="tempoDisplay">3</span></label>
-        <input type="range" id="tempo" min="1" max="5" value="3" step="1"
-          oninput="tempoDisplay.innerText=this.value">
+        <script type="module">
+            // Firebase imports and setup (same as your current code) ...
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+            import {
+            getFirestore, collection, addDoc, getDocs, updateDoc, doc,
+            increment, onSnapshot, query, orderBy, getDoc
+            } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-        <br><br>
-        <input
-          type="text"
-          id="seq"
-          inputmode="text"
-          pattern='[1-7_" ]*'
-          placeholder='Use _ for pause, " for sustain'
-          autocorrect="off"
-          autocapitalize="none"
-          autocomplete="off">
-        <button onclick="clear_sequence()">Clear</button>
-        <button onclick="play_sequence()">Play</button>
+            const firebaseConfig = {
+            apiKey: "AIzaSyDoCtGjssZ41qMthQrihOPD_wYJrdVXfr0",
+            authDomain: "alankar-maker.firebaseapp.com",
+            projectId: "alankar-maker",
+            storageBucket: "alankar-maker.firebasestorage.app",
+            messagingSenderId: "565148625631",
+            appId: "1:565148625631:web:4d819f8190f9d5fb49d76a",
+            measurementId: "G-P3GTJ27L88"
+            };
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
 
-        <br><br>
-        <button id="saveButton" onclick="saveAlankar()">💾 Save to Public Library</button>
-      </div>
+            // ---------------- SoundFont ----------------
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const ac = new AudioContext({ latencyHint: "interactive" });
 
-      <!-- Library Tab -->
-      <div id="library" class="tab-content">
-        <div id="library-list"></div>
-      </div>
-    </div>
+            // ---- Force speaker route for iPhone Safari ----
+            async function forceSpeakerRoute() {
+            try {
+            const elem = document.createElement("audio");
+            // silent base64-encoded mp3 (0.1s silence)
+            elem.src = "https://cdn.jsdelivr.net/gh/anars/blank-audio/1-second-of-silence.mp3";
+            elem.loop = false;
+            elem.volume = 0;
+            await elem.play(); // triggers speaker route
+            elem.pause();
+            elem.remove();
+            console.log("✅ Speaker route forced on iOS");
+            } catch (err) {
+            console.warn("Speaker routing could not be forced:", err);
+            }
+            }
 
-    <footer>© 2025 Alankar Maker -- SSN</footer>
+            let currentInstrumentPlayer = null;
+            let currentPlaybackAbort = null;
 
-    <script type="module">
-      // Firebase imports and setup (same as your current code) ...
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-      import {
-        getFirestore, collection, addDoc, getDocs, updateDoc, doc,
-        increment, onSnapshot, query, orderBy, getDoc
-      } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+            const NOTE_MAP = {
+            '1': 'C4', '2': 'D4', '3': 'E4', '4': 'F4', '5': 'G4', '6': 'A4', '7': 'B4',
+            '8': 'C5', '9': 'D5', '10': 'E5', '11': 'F5', '12': 'G5', '13': 'A5', '14': 'B5'
+            };
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyDoCtGjssZ41qMthQrihOPD_wYJrdVXfr0",
-        authDomain: "alankar-maker.firebaseapp.com",
-        projectId: "alankar-maker",
-        storageBucket: "alankar-maker.firebasestorage.app",
-        messagingSenderId: "565148625631",
-        appId: "1:565148625631:web:4d819f8190f9d5fb49d76a",
-        measurementId: "G-P3GTJ27L88"
-      };
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
+            async function loadInstrument() {
+            let instName = document.getElementById('instrument').value;
+            if (instName === "piano") instName = "acoustic_grand_piano";
+            else if (instName === "organ") instName = "drawbar_organ";
+            else if (instName === "guitar") instName = "acoustic_guitar_nylon";
+            currentInstrumentPlayer = await Soundfont.instrument(ac, instName);
+            }
+            document.getElementById("instrument").addEventListener("change", loadInstrument);
 
-      // ---------------- SoundFont ----------------
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      const ac = new AudioContext({ latencyHint: "interactive" });
+            function append_note(v) {
+            document.getElementById('seq').value += v.trim();
+            }
+            document.querySelectorAll('.note-buttons button').forEach(btn =>
+            btn.addEventListener('click', e => append_note(e.target.value))
+            );
 
-    // ---- Force speaker route for iPhone Safari ----
-    async function forceSpeakerRoute() {
-    try {
-        const elem = document.createElement("audio");
-        // silent base64-encoded mp3 (0.1s silence)
-        elem.src = "https://cdn.jsdelivr.net/gh/anars/blank-audio/1-second-of-silence.mp3";
-        elem.loop = false;
-        elem.volume = 0;
-        await elem.play(); // triggers speaker route
-        elem.pause();
-        elem.remove();
-        console.log("✅ Speaker route forced on iOS");
-    } catch (err) {
-        console.warn("Speaker routing could not be forced:", err);
-    }
-    }
+            function clear_sequence() {
+            if (currentPlaybackAbort) currentPlaybackAbort.abort();
+            document.getElementById('seq').value = "";
+            }
+            document.getElementById('seq').addEventListener('input', e => {
+            e.target.value = e.target.value.replace(/ /g, '_');
+            });
 
-      let currentInstrumentPlayer = null;
-      let currentPlaybackAbort = null;
-
-      const NOTE_MAP = {
-        '1': 'C4', '2': 'D4', '3': 'E4', '4': 'F4', '5': 'G4', '6': 'A4', '7': 'B4',
-        '8': 'C5', '9': 'D5', '10': 'E5', '11': 'F5', '12': 'G5', '13': 'A5', '14': 'B5'
-      };
-
-      async function loadInstrument() {
-        let instName = document.getElementById('instrument').value;
-        if (instName === "piano") instName = "acoustic_grand_piano";
-        else if (instName === "organ") instName = "drawbar_organ";
-        else if (instName === "guitar") instName = "acoustic_guitar_nylon";
-        currentInstrumentPlayer = await Soundfont.instrument(ac, instName);
-      }
-      document.getElementById("instrument").addEventListener("change", loadInstrument);
-
-      function append_note(v) {
-        document.getElementById('seq').value += v.trim();
-      }
-      document.querySelectorAll('.note-buttons button').forEach(btn =>
-        btn.addEventListener('click', e => append_note(e.target.value))
-      );
-
-      function clear_sequence() {
-        if (currentPlaybackAbort) currentPlaybackAbort.abort();
-        document.getElementById('seq').value = "";
-      }
-      document.getElementById('seq').addEventListener('input', e => {
-        e.target.value = e.target.value.replace(/ /g, '_');
-      });
-
-      function parseSequence(raw) {
-        const chars = raw.split('');
-        const parsed = [];
-        for (let i = 0; i < chars.length; i++) {
-          const ch = chars[i];
-          if (ch === '"') {
+            function parseSequence(raw) {
+            const chars = raw.split('');
+            const parsed = [];
+            for (let i = 0; i < chars.length; i++) {
+            const ch = chars[i];
+            if (ch === '"') {
             if (parsed.length > 0) parsed[parsed.length - 1].mult += 1;
-          } else {
+            } else {
             parsed.push({ note: ch, mult: 1 });
-          }
-        }
-        return parsed;
-      }
+            }
+            }
+            return parsed;
+            }
 
-      function computeStepMs() {
-        const t = parseInt(document.getElementById('tempo').value, 10);
-        const mapped = t + 4;
-        return Math.max(80, 560 - (mapped * 48));
-      }
+            function computeStepMs() {
+            const t = parseInt(document.getElementById('tempo').value, 10);
+            const mapped = t + 4;
+            return Math.max(80, 560 - (mapped * 48));
+            }
 
-      async function play_sequence() {
-        if (!currentInstrumentPlayer) await loadInstrument();
-        if (ac.state === "suspended") await ac.resume();
-        if (currentPlaybackAbort) currentPlaybackAbort.abort();
-        const controller = new AbortController();
-        currentPlaybackAbort = controller;
+            async function play_sequence() {
+            if (!currentInstrumentPlayer) await loadInstrument();
+            if (ac.state === "suspended") await ac.resume();
+            if (currentPlaybackAbort) currentPlaybackAbort.abort();
+            const controller = new AbortController();
+            currentPlaybackAbort = controller;
 
-        let raw = document.getElementById('seq').value.trim();
-        raw = raw.replace(/[“”]/g, '"');
-        raw = raw.replace(/[^1-7_""]/g, '');
-        document.getElementById('seq').value = raw;
-        if (!raw) return alert('Enter a valid sequence with 1–7, _ or "');
+            let raw = document.getElementById('seq').value.trim();
+            raw = raw.replace(/[“”]/g, '"');
+            raw = raw.replace(/[^1-7_""]/g, '');
+            document.getElementById('seq').value = raw;
+            if (!raw) return alert('Enter a valid sequence with 1–7, _ or "');
 
-        const base = parseSequence(raw);
-        const expanded = [];
-        for (let i = 0; i < 5; i++) {
-          base.forEach(p =>
+            const base = parseSequence(raw);
+            const expanded = [];
+            for (let i = 0; i < 5; i++) {
+            base.forEach(p =>
             expanded.push({ note: p.note === '_' ? '_' : String(Number(p.note) + i), mult: p.mult })
-          );
-        }
+            );
+            }
 
-        const sleep = (ms) =>
-          new Promise((r) => {
+            const sleep = (ms) =>
+            new Promise((r) => {
             const id = setTimeout(r, ms);
             controller.signal.addEventListener('abort', () => clearTimeout(id), { once: true });
-          });
+            });
 
-        for (const { note, mult } of expanded) {
-          if (controller.signal.aborted) return;
+            for (const { note, mult } of expanded) {
+            if (controller.signal.aborted) return;
 
-          const stepMs = computeStepMs();
-          if (note === '_') {
+            const stepMs = computeStepMs();
+            if (note === '_') {
             await sleep(stepMs * mult);
             continue;
-          }
-          const midi = NOTE_MAP[note];
-          if (!midi) { await sleep(stepMs * mult); continue; }
+            }
+            const midi = NOTE_MAP[note];
+            if (!midi) { await sleep(stepMs * mult); continue; }
 
-          const durSec = (stepMs * mult) / 1000 * 0.9;
-          currentInstrumentPlayer.play(midi, ac.currentTime, { duration: durSec });
-          await sleep(stepMs * mult);
-        }
-        currentPlaybackAbort = null;
-      }
+            const durSec = (stepMs * mult) / 1000 * 0.9;
+            currentInstrumentPlayer.play(midi, ac.currentTime, { duration: durSec });
+            await sleep(stepMs * mult);
+            }
+            currentPlaybackAbort = null;
+            }
 
-      async function saveAlankar() {
-        const seq = document.getElementById('seq').value.trim();
-        if (!seq) return alert("Enter a sequence first!");
-        const instrument = document.getElementById('instrument').value;
-        const tempo = parseInt(document.getElementById('tempo').value, 10);
-        const timestamp = Date.now();
+            async function saveAlankar() {
+            const seq = document.getElementById('seq').value.trim();
+            if (!seq) return alert("Enter a sequence first!");
+            const instrument = document.getElementById('instrument').value;
+            const tempo = parseInt(document.getElementById('tempo').value, 10);
+            const timestamp = Date.now();
 
-        const snapshot = await getDocs(collection(db, "alankars"));
-        const exists = snapshot.docs.some(d => d.data().sequence === seq);
-        if (exists) return alert("Already in library!");
+            const snapshot = await getDocs(collection(db, "alankars"));
+            const exists = snapshot.docs.some(d => d.data().sequence === seq);
+            if (exists) return alert("Already in library!");
 
-        await addDoc(collection(db, "alankars"), { name: seq, sequence: seq, instrument, tempo, votes: 0, time: timestamp });
-        alert("Saved to Shared Library!");
-      }
+            await addDoc(collection(db, "alankars"), { name: seq, sequence: seq, instrument, tempo, votes: 0, time: timestamp });
+            alert("Saved to Shared Library!");
+            }
 
-      function renderLibrary() {
-        const div = document.getElementById('library-list');
-        div.innerHTML = "<p>Loading...</p>";
-        const q = query(collection(db, "alankars"), orderBy("votes", "desc"), orderBy("time", "desc"));
-        onSnapshot(q, snapshot => {
-          if (snapshot.empty) {
+            function renderLibrary() {
+            const div = document.getElementById('library-list');
+            div.innerHTML = "<p>Loading...</p>";
+            const q = query(collection(db, "alankars"), orderBy("votes", "desc"), orderBy("time", "desc"));
+            onSnapshot(q, snapshot => {
+            if (snapshot.empty) {
             div.innerHTML = "<p>No Alankars yet. Be the first to add one!</p>";
             return;
-          }
-          div.innerHTML = snapshot.docs.map((docSnap) => {
+            }
+            div.innerHTML = snapshot.docs.map((docSnap) => {
             const a = docSnap.data();
             return `
-              <div id="lib-item-${docSnap.id}" class="lib-card">
-                <b>${a.name}</b> (${a.instrument}, tempo ${a.tempo}) — ❤️ ${a.votes}<br>
-                <button onclick="playFromFirestore('${docSnap.id}')">▶ Play</button>
-                <button onclick="voteFirestore('${docSnap.id}')">👍 Vote</button>
-              </div>
+            <div id="lib-item-${docSnap.id}" class="lib-card">
+            <b>${a.name}</b> (${a.instrument}, tempo ${a.tempo}) — ❤️ ${a.votes}<br>
+            <button onclick="playFromFirestore('${docSnap.id}')">▶ Play</button>
+            <button onclick="voteFirestore('${docSnap.id}')">👍 Vote</button>
+            </div>
             `;
-          }).join("");
-        });
-      }
+            }).join("");
+            });
+            }
 
-      async function playFromFirestore(id) 
-      {
+            async function playFromFirestore(id) 
+            {
 
-        if (currentPlaybackAbort) currentPlaybackAbort.abort();
-        if (ac.state === "suspended") await ac.resume();
+            if (currentPlaybackAbort) currentPlaybackAbort.abort();
+            if (ac.state === "suspended") await ac.resume();
 
-        const card = document.getElementById(`lib-item-${id}`);
-        document.querySelectorAll('.lib-card').forEach(el => el.classList.remove('playing'));
-        if (card) card.classList.add('playing');
+            const card = document.getElementById(`lib-item-${id}`);
+            document.querySelectorAll('.lib-card').forEach(el => el.classList.remove('playing'));
+            if (card) card.classList.add('playing');
 
-        const docRef = doc(db, "alankars", id);
-        const snapshot = await getDoc(docRef);
-        if (!snapshot.exists()) return;
+            const docRef = doc(db, "alankars", id);
+            const snapshot = await getDoc(docRef);
+            if (!snapshot.exists()) return;
 
-        const item = snapshot.data();
-        // const tempInstrument = await Soundfont.instrument(ac, item.instrument);
-        let instName = item.instrument;
-        if (instName === "piano") instName = "acoustic_grand_piano";
-        else if (instName === "organ") instName = "drawbar_organ";
-        else if (instName === "guitar") instName = "acoustic_guitar_nylon";
-        else if (instName === "flute") instName = "flute";
-        else if (instName === "violin") instName = "violin";
-        const tempInstrument = await Soundfont.instrument(ac, instName);
+            const item = snapshot.data();
+            // const tempInstrument = await Soundfont.instrument(ac, item.instrument);
+            let instName = item.instrument;
+            if (instName === "piano") instName = "acoustic_grand_piano";
+            else if (instName === "organ") instName = "drawbar_organ";
+            else if (instName === "guitar") instName = "acoustic_guitar_nylon";
+            else if (instName === "flute") instName = "flute";
+            else if (instName === "violin") instName = "violin";
+            const tempInstrument = await Soundfont.instrument(ac, instName);
 
-        const controller = new AbortController();
-        currentPlaybackAbort = controller;
+            const controller = new AbortController();
+            currentPlaybackAbort = controller;
 
-        const base = parseSequence(item.sequence);
-        const expanded = [];
-        for (let j = 0; j < 4; j++) {
-          base.forEach(p =>
+            const base = parseSequence(item.sequence);
+            const expanded = [];
+            for (let j = 0; j < 4; j++) {
+            base.forEach(p =>
             expanded.push({ note: p.note === "_" ? "_" : String(Number(p.note) + j), mult: p.mult })
-          );
-        }
+            );
+            }
 
-        const sleep = (ms) =>
-          new Promise((resolve) => {
+            const sleep = (ms) =>
+            new Promise((resolve) => {
             const tid = setTimeout(resolve, ms);
             controller.signal.addEventListener("abort", () => clearTimeout(tid), { once: true });
-          });
+            });
 
-        const originalTempo = document.getElementById("tempo").value;
-        document.getElementById("tempo").value = item.tempo;
-        const stepMs = computeStepMs();
-        document.getElementById("tempo").value = originalTempo;
+            const originalTempo = document.getElementById("tempo").value;
+            document.getElementById("tempo").value = item.tempo;
+            const stepMs = computeStepMs();
+            document.getElementById("tempo").value = originalTempo;
 
-        for (const { note, mult } of expanded) {
-          if (controller.signal.aborted) break;
-          if (note === "_") { await sleep(stepMs * mult); continue; }
+            for (const { note, mult } of expanded) {
+            if (controller.signal.aborted) break;
+            if (note === "_") { await sleep(stepMs * mult); continue; }
 
-          const midi = NOTE_MAP[note];
-          if (!midi) { await sleep(stepMs * mult); continue; }
+            const midi = NOTE_MAP[note];
+            if (!midi) { await sleep(stepMs * mult); continue; }
 
-          const durSec = (stepMs * mult) / 1000 * 0.9;
-          tempInstrument.play(midi, ac.currentTime, { duration: durSec });
-          await sleep(stepMs * mult);
-        }
+            const durSec = (stepMs * mult) / 1000 * 0.9;
+            tempInstrument.play(midi, ac.currentTime, { duration: durSec });
+            await sleep(stepMs * mult);
+            }
 
-        if (card) card.classList.remove("playing");
-        currentPlaybackAbort = null;
-      }
+            if (card) card.classList.remove("playing");
+            currentPlaybackAbort = null;
+            }
 
-      async function voteFirestore(id) {
-        const docRef = doc(db, "alankars", id);
-        await updateDoc(docRef, { votes: increment(1) });
-      }
+            async function voteFirestore(id) {
+            const docRef = doc(db, "alankars", id);
+            await updateDoc(docRef, { votes: increment(1) });
+            }
 
-      function openTab(tabName) {
-        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-        document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-        document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
-        document.getElementById(tabName).classList.add("active");
-        if (tabName === "library") renderLibrary();
-      }
+            function openTab(tabName) {
+            document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+            document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+            document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
+            document.getElementById(tabName).classList.add("active");
+            if (tabName === "library") renderLibrary();
+            }
 
-      window.onload = () => {
-        loadInstrument();
-        renderLibrary();
-      };
+            window.onload = () => {
+            loadInstrument();
+            renderLibrary();
+            };
 
-      // ---- AUDIO UNLOCK ----
-      const unlockDiv = document.getElementById("audioUnlock");
-      async function unlockAudio() {
-        try {
+            // ---- AUDIO UNLOCK ----
+            const unlockDiv = document.getElementById("audioUnlock");
+            async function unlockAudio() {
+            try {
             await ac.resume();
             await forceSpeakerRoute();  // <— ensure media route is through speaker
             if (!currentInstrumentPlayer) await loadInstrument();
             unlockDiv.style.display = "none";
-        } catch (err) {
+            } catch (err) {
             console.error("Audio unlock failed:", err);
-        }
-      }
-      ["click", "touchstart", "touchend"].forEach(evt =>
-        window.addEventListener(evt, unlockAudio, { once: true })
-      );
+            }
+            }
+            ["click", "touchstart", "touchend"].forEach(evt =>
+            window.addEventListener(evt, unlockAudio, { once: true })
+            );
 
-      // Expose globals
-      window.append_note = append_note;
-      window.clear_sequence = clear_sequence;
-      window.play_sequence = play_sequence;
-      window.saveAlankar = saveAlankar;
-      window.openTab = openTab;
-      window.voteFirestore = voteFirestore;
-      window.playFromFirestore = playFromFirestore;
-    </script>
-  </body>
-
+            // Expose globals
+            window.append_note = append_note;
+            window.clear_sequence = clear_sequence;
+            window.play_sequence = play_sequence;
+            window.saveAlankar = saveAlankar;
+            window.openTab = openTab;
+            window.voteFirestore = voteFirestore;
+            window.playFromFirestore = playFromFirestore;
+        </script>
+    </body>
 </html>
