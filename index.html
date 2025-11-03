@@ -551,7 +551,9 @@
         });
       }
 
-      async function playFromFirestore(id) {
+      async function playFromFirestore(id) 
+      {
+
         if (currentPlaybackAbort) currentPlaybackAbort.abort();
         if (ac.state === "suspended") await ac.resume();
 
@@ -564,7 +566,14 @@
         if (!snapshot.exists()) return;
 
         const item = snapshot.data();
-        const tempInstrument = await Soundfont.instrument(ac, item.instrument);
+        // const tempInstrument = await Soundfont.instrument(ac, item.instrument);
+        let instName = item.instrument;
+        if (instName === "piano") instName = "acoustic_grand_piano";
+        else if (instName === "organ") instName = "drawbar_organ";
+        else if (instName === "guitar") instName = "acoustic_guitar_nylon";
+        else if (instName === "flute") instName = "flute";
+        else if (instName === "violin") instName = "violin";
+        const tempInstrument = await Soundfont.instrument(ac, instName);
 
         const controller = new AbortController();
         currentPlaybackAbort = controller;
